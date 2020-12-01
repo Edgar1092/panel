@@ -1,0 +1,73 @@
+// Fonts
+@import url("https://fonts.googleapis.com/css?family=Nunito");
+
+// Variables
+@import "variables";
+
+// Bootstrap
+@import "~bootstrap/scss/bootstrap";
+
+// Font Awesome
+@import "~@fortawesome/fontawesome-free/scss/fontawesome";
+@import "~@fortawesome/fontawesome-free/scss/regular";
+@import "~@fortawesome/fontawesome-free/scss/solid";
+@import "~@fortawesome/fontawesome-free/scss/brands";
+
+// Custom styles
+nav {
+  &.navbar {
+    background-image: url(/panel/images/banner.png);
+    background-position: 100% 100%;
+    background-repeat: unset;
+    background-size: cover;
+    height: 106px;
+    z-index: 1;
+  }
+  &.sidebar {
+    background-color: #d8fff8 !important;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    padding-top: 120px !important;
+    img {
+      width: 3.5rem;
+      height: 3.5rem;
+    }
+    .nav-icon {
+      color: rgb(96, 96, 96);
+      &:hover {
+        color: black;
+      }
+    }
+  }
+}
+
+img.picture-profile {
+  width: 7rem;
+  height: 7rem;
+}
+
+.hidden {
+  width: 0px;
+  height: 0px;
+  overflow: hidden;
+}
+
+.title-logo {
+  color: black;
+  font-weight: bold;
+  font-family: Impact, Haettenschweiler, "Franklin Gothic Bold", Charcoal, "Helvetica Inserat", "Bitstream Vera Sans Bold", "Arial Black", "sans serif";
+  span {
+    color: #8CF0DD;
+  }
+}
+
+@for $i from 1 through 5 {
+  .border-#{$i} {
+    border-width: #{$i}px !important;
+  }
+}
+
+h1, h2, h3, h4, h5, h6, nav {
+  font-family: "Magra", sans-serif;
+}
