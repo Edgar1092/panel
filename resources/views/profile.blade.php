@@ -57,6 +57,11 @@
                             <input type="text" class="form-control" id="phone" name="phone" placeholder="123-4567"
                                 value="{{ Auth::user()->phone }}">
                         </div>
+                        <div class="form-group">
+                            <label for="uuid">{{ __('UID') }}</label>
+                            <input readonly type="text" class="form-control" id="uuid" name="uuid" placeholder=""
+                                value="{{ Auth::user()->uuid }}">
+                        </div>
                         <a class="btn btn-block text-danger" href="#" role="button" data-toggle="modal"
                             data-target="#passwordModal">{{ __('Change Password') }}</a>
                         <button type="submit" class="btn btn-success btn-block">{{ __('Save Settings') }}</button>

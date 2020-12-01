@@ -38,7 +38,9 @@ class UserController extends Controller
             ]);
         }
         $user = new User;
-        
+        $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $token=substr(str_shuffle(str_repeat($pool, 5)), 0, 15);
+        $user->uuid = $token;
         $user->first_name = $request->fName;
         $user->last_name = $request->lName;
         $user->email = $request->email;
@@ -74,7 +76,12 @@ class UserController extends Controller
             ]);
         }
         $user = User::find($request->uuid);
-        
+
+        if($user->uuid == "" || $user->uuid == null){
+            $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $token=substr(str_shuffle(str_repeat($pool, 5)), 0, 15);
+            $user->uuid = $token;
+        }
         $user->first_name = $request->fName;
         $user->last_name = $request->lName;
 
@@ -119,7 +126,11 @@ class UserController extends Controller
             $avatarName = time() . '.' . request()->avatar->getClientOriginalExtension();
             $request->avatar->storeAs( $user->id . '/avatars', $avatarName);
         }
-
+        if($user->uuid == "" || $user->uuid == null){
+            $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $token=substr(str_shuffle(str_repeat($pool, 5)), 0, 15);
+            $user->uuid = $token;
+        }
         $user->first_name = $request->first_name;
         $user->last_name = $request->last_name;
         $user->phone = $request->phone;
@@ -184,13 +195,13 @@ class UserController extends Controller
     {
         $user = Auth::user();
         if($user->is_admin){
-            $screens = Screen::orderBy('created_at', 'asc')->get();
-            $usuarios = User::orderBy('created_at', 'asc')->get();
+            $screens = Screen::with('user')->orderBy('created_at', 'asc')->get();
+            $usuarios = User::where('is_active',1)->orderBy('created_at', 'asc')->get();
         }else{
             $screens = $user->screens()->orderBy('created_at', 'asc')->get();
             $usuarios = [];
         }
-
+        // var_dump($screens);
         return view('screens', [
             'user' => $user,
             'screens' => $screens,
@@ -198,11 +209,35 @@ class UserController extends Controller
         ]);
     }
 
-    public function getUsers()
+    public function getUsers(Request $request)
     {
+        if(!Auth::user()){
+            return redirect('login');
+        }
         $user = Auth::user();
         if($user->is_admin){
-            $usuarios = User::orderBy('created_at', 'asc')->paginate(10);
+            if($request->search){
+                if(strtolower($request->search) == 'administrador' || strtolower($request->search) == 'administradores'){
+                    $query = User::where('is_admin', 1);
+                }else if(strtolower($request->search) == 'cliente' || strtolower($request->search) == 'clientes'){
+                    $query = User::where('is_admin', 0);
+                }else if(strtolower($request->search) == 'activo' || strtolower($request->search) == 'activos'){
+                    $query = User::where('is_active', 1);
+                }else if(strtolower($request->search) == 'desactivo' || strtolower($request->search) == 'desactivos' || strtolower($request->search) == 'inactivo' || strtolower($request->search) == 'inactivos'){
+                    $query = User::where('is_active', 0);
+                }else{
+                 $query = User::where('first_name', 'LIKE', '%'.$request->search.'%')
+                                ->orWhere('last_name', 'LIKE', '%'.$request->search.'%')
+                                ->orWhere('email', 'LIKE', '%'.$request->search.'%')
+                                ->orWhere('phone', 'LIKE', '%'.$request->search.'%');   
+                }
+
+                $usuarios = $query->orderBy('created_at', 'asc')->paginate(10); 
+                
+            }else{
+              $usuarios = User::orderBy('created_at', 'asc')->paginate(10);  
+            }
+            
         }else{
             $usuarios = [];
         }
@@ -273,8 +308,12 @@ class UserController extends Controller
         ]);
 
         $user = Auth::user();
-
-        $screen = $user->screens()->firstWhere('uuid', $request->uuid);
+        if($user->is_admin){
+            $userSelected = User::find($request->idUser);
+            $screen = $userSelected->screens()->firstWhere('uuid', $request->uuid);
+        }else{
+            $screen = $user->screens()->firstWhere('uuid', $request->uuid);
+        }
         $screen->delete();
 
         return back()->with('success', "You have successfully removed the screen: $screen->name.")->with('color', 'danger');
@@ -285,9 +324,9 @@ class UserController extends Controller
         $request->validate([
             'uuid' => 'required|string|min:15|max:36'
         ]);
-
+        
         $user = Auth::user();
-
+        
         if($request->action == "info") {
             $request->validate([ 'name' => 'required|string|min:1|max:150' ]);
             $values = [ 'name' => $request->name ];
@@ -296,8 +335,13 @@ class UserController extends Controller
                 'sync_at' => Carbon::now()->toDateTimeString(), 'offline' => 1
             ] :  [ 'offline' => 0 ];
         }
-
-        $user->screens()->firstWhere('uuid', $request->uuid)->update($values);
+        if($user->is_admin){
+            $userSelected = User::find($request->idUser);
+            $userSelected->screens()->firstWhere('uuid', $request->uuid)->update($values);
+        }else{
+          $user->screens()->firstWhere('uuid', $request->uuid)->update($values);  
+        }
+        
         return back()->with('success', "You have successfully updated the current screen");
     } 
     

@@ -44,6 +44,7 @@
                     <button type="button" class="close text-danger"
                         data-uuid="{{ $screen->uuid }}"
                         data-name="{{ $screen->name }}"
+                        data-iduser="{{ $screen->user->id }}"
                         data-toggle="modal"
                         data-target="#delScreenModal">×</button>
                     {{ $loop->iteration }}. {{ $screen->name }} <br />
@@ -74,6 +75,7 @@
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="uuid" value="{{ $screen->uuid }}" />
+                <input type="hidden" name="idUser" value="{{ $screen->user->id }}" />
                 <div class="col text-left">
                     <p class="font-weight-bolder text-break">{{ $screen->name }}<br/>
                         <button type="button" class="btn btn-outline-secondary btn-sm my-2"
@@ -86,6 +88,14 @@
                     {{ __('Brand') }} / {{ __('Model') }}: {{ $screen->brand }}<br />
                     {{ __('Manufacturer') }}: {{ $screen->manufacturer }}<br />
                     {{ __('Add Date') }}: {{ $screen->created_at }}</p>
+                    @if($user->is_admin)
+                    <p>
+                    {{ __('Name') }}: {{ $screen->user->first_name }} {{ $screen->user->last_name }}<br />
+                    {{ __('E-Mail Address') }}: {{ $screen->user->email }}<br />
+                    {{ __('Phone') }}: {{ $screen->user->phone }}<br />
+                    {{ __('User type') }}: {{ $screen->user->is_admin ? "Administrador" : "Cliente" }}<br />
+                    </p>
+                    @endif
                     <p>{{ __('Content Type') }}:
                     @if($screen->offline === 0)
                     <b><span class="text-success">{{ __('Online') }}</span></b></p>
@@ -124,6 +134,7 @@
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label for="name">{{ __('Name') }}</label>
+                            <input type="hidden" class="form-control" name="idUser" id="idUser" value="{{ $screen->user->id }}" />
                             <input type="text" class="form-control" name="name" id="name" value="{{ $screen->name }}" required />
                         </div>
                     </div>
@@ -215,6 +226,7 @@
                     <h5 class="screen-name my-2"></h5>
                     <h4 class="my-3">{{ __('Want to proceed?') }}</h4>
                     <input type="hidden" name="uuid" id="delScreenUuid">
+                    <input type="hidden" class="form-control" name="idUser" id="delScreenidUser" />
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
@@ -248,9 +260,11 @@
 
         const name = button.data('name');
         const uuid = button.data('uuid');
+        const iduser = button.data('iduser');
         
         $modal.find('.screen-name').text(name);
         $modal.find('#delScreenUuid').val(uuid);
+        $modal.find('#delScreenidUser').val(iduser);
     });
 
     $('#viewScreenModal').on('show.bs.modal', function (e) {

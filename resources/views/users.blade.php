@@ -38,11 +38,30 @@
         <div class="col-md-12">
             <h3>{{ __('Users') }} <small style="font-size:50%;"><i>{{ count($users) }} {{ __('out of') }} {{ $users->total() }}</i></small>
             </h3>
-            
+            <div class="row">
+                <div class="col-md-6">
+                    <form action="{{ route('users') }}" method="GET" >
+                        <div class="form-group input-group">
+                            <input type="text" class="form-control" name="search" id="search" />
+                            <span class="input-group-btn">
+                                <button type="submit" class="btn btn-success" data-toggle="tooltip" data-placement="bottom" title="Buscar"><i class="fas fa-search"></i></button>
+                            </span>
+                            <span class="input-group-btn">
+                            <a class="btn btn-danger" data-toggle="tooltip" data-placement="bottom" title="Limpiar" href="{{ route('users') }}">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                            </span>
+                            
+                        </div>
+                        
+                    </form>
+                </div>
+            </div>
             <div class="row">
             <table class="table table-striped">
                 <thead>
                     <tr>
+                    <th>UID</th>
                     <th>Nombres</th>
                     <th>Apellidos</th>
                     <th>Email</th>
@@ -54,13 +73,14 @@
                 <tbody>
                 @foreach ($users as $user)
                     <tr>
+                    <td>{{$user->uuid}}</td>
                     <td>{{$user->first_name}}</td>
                     <td>{{$user->last_name}}</td>
                     <td>{{$user->email}}</td>
                     <td>{{$user->phone}}</td>
                     <td>{{$user->is_admin ? 'Administrador' : 'Cliente'}}</td>
                     <td>
-                    <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="Editar"
+                    <button type="button" class="btn btn-outline-primary" title="Editar"
                         data-uuid="{{ $user->id }}"
                         data-fname="{{ $user->first_name }}"
                         data-lname="{{ $user->last_name }}"
@@ -72,7 +92,7 @@
                         <i class="fa fa-edit fa-2x"></i>
                     
                     </button>
-                    <button type="button" class="btn btn-outline-danger" data-toggle="tooltip" data-placement="bottom" title="Eliminar"
+                    <button type="button" class="btn btn-outline-danger" title="Eliminar"
                         data-uuid="{{ $user->id }}"
                         data-name="{{ $user->first_name }} {{$user->last_name}}"
                         data-toggle="modal"
@@ -115,34 +135,34 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="userType">{{ __('User type') }}</label>
-                        <select class="form-control" name="userType" id="userType" >
+                        <select class="form-control" name="userType" id="aduserType" >
                             <option selected value="0">Cliente</option>
                             <option value="1">Administrador</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label for="fName">{{ __('Firstname') }}</label>
-                        <input type="text" class="form-control" name="fName" id="fName" required />
+                        <input type="text" class="form-control" name="fName" id="adfName" required />
                     </div>
                     <div class="form-group">
                         <label for="lName">{{ __('Lastname') }}</label>
-                        <input type="text" class="form-control" name="lName" id="lName" required />
+                        <input type="text" class="form-control" name="lName" id="adlName" required />
                     </div>
                     <div class="form-group">
                         <label for="email">{{ __('E-Mail Address') }}</label>
-                        <input type="text" class="form-control" name="email" id="email" required />
+                        <input type="text" class="form-control" name="email" id="ademail" required />
                     </div>
                     <div class="form-group">
                         <label for="phone">{{ __('Phone') }}</label>
-                        <input type="text" class="form-control" name="phone" id="phone" />
+                        <input type="text" class="form-control" name="phone" id="adphone" />
                     </div>
                     <div class="form-group">
                         <label for="password">{{ __('Password') }}</label>
-                        <input type="password" class="form-control" name="password" id="password" required />
+                        <input type="password" class="form-control" name="password" id="adpassword" required />
                     </div>
                     <div class="form-group">
                         <label for="avatar">{{ __('Avatar') }}</label>
-                        <input type="file" class="form-control" name="avatar" id="avatar" />
+                        <input type="file" class="form-control" name="avatar" id="adavatar" />
                     </div>
 
                 </div>

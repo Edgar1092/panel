@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Screen;
+use App\User;
 
 // TEMPORAL FACADE
 use Illuminate\Support\Facades\DB;
@@ -26,12 +28,21 @@ class ContentController extends Controller
     {
         $user = Auth::user();
         $count = [ 'images' => 0, 'videos' => 0 ];
-
-        $screen = $user->screens()->firstWhere('uuid', $request->uuid);
-        $actives = $screen->schedules()->get();
-        $content = $user->contents()->get();
-        $playlists = $user->playlists()->get();
-        $schedules = $user->schedules()->get();
+        if($user->is_admin){
+            $scrn = Screen::where('uuid', $request->uuid)->first();
+            $userSelected= User::find($scrn->user_id);
+            $screen = $userSelected->screens()->firstWhere('uuid', $request->uuid);
+            $actives = $screen->schedules()->get();
+            $content = $userSelected->contents()->get();
+            $playlists = $userSelected->playlists()->get();
+            $schedules = $userSelected->schedules()->get();
+        }else{
+            $screen = $user->screens()->firstWhere('uuid', $request->uuid);  
+            $actives = $screen->schedules()->get();
+            $content = $user->contents()->get();
+            $playlists = $user->playlists()->get();
+            $schedules = $user->schedules()->get();
+        }
 
         /**
          * FIX WITHOUT BACKOFFICE ALL SCHEDULES

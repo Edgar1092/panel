@@ -58,7 +58,9 @@ class AuthController extends Controller
         ]);
 
         $user = new User;
-        
+        $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $token=substr(str_shuffle(str_repeat($pool, 5)), 0, 15);
+        $user->uuid = $token;
         $user->first_name = $request->fName;
         $user->last_name = $request->lName;
         $user->email = $request->email;
