@@ -24,6 +24,7 @@ class CreateUsersTable extends Migration
             $table->string('phone')->nullable();
             $table->boolean('is_admin')->default(false);
             $table->boolean('is_active')->default(true);
+            $table->string('uuid')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
