@@ -35,6 +35,8 @@ Route::prefix('users')->group(function () {
     Route::post('update', 'UserController@edit')->name('users.update');
     Route::post('/', 'UserController@store');
     Route::delete('/', 'UserController@delete');
+    Route::get('active/{uuid}', 'UserController@active')->name('users.active');
+    Route::get('desactive/{uuid}', 'UserController@desactive')->name('users.desactive');
 });
 Route::prefix('content')->group(function () {
     //Route::get('/', 'ContentController@selectScreen')->name('content');

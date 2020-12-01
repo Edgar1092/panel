@@ -55,17 +55,17 @@
         <div class="col-md-9 pl-4">
             <div class="row">
                 <div class="col text-right">
-                    {{--<a class="btn btn-link text-secondary d-none" href="#!" id="viewSreenContent">
+                    <a class="btn btn-link text-secondary d-none" href="#!" id="viewSreenContent">
                         <!-- <i class="fas fa-border-all fa-2x"></i> -->
                         <i class="icofont-ui-settings fa-2x"></i>
-                    </a> --}}
+                    </a> 
                     <a class="btn btn-link text-secondary d-none" href="#!" data-toggle="modal"
                     data-target="#viewScreenModal">
                         <i class="fas fa-map-marker-alt fa-2x"></i>
                     </a>
-                    {{-- <a class="btn btn-outline-secondary" href="#!" role="button">{{ __('Add Group') }}</a>
+                     {{--<a class="btn btn-outline-secondary" href="#!" role="button">{{ __('Add Group') }}</a>--}}
                     <a class="btn btn-outline-secondary" href="#!" role="button" data-toggle="modal"
-                        data-target="#screenModal">{{ __('Add Screen') }}</a> --}}
+                        data-target="#screenModal">{{ __('Add Screen') }}</a> 
                 </div>
             </div>
             @foreach ($screens as $screen)
@@ -150,6 +150,18 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    @if($user->is_admin)
+                    
+                    <div class="form-group">
+                        <label for="users">{{ __('Users') }}</label>
+                        <select class="form-control" name="userSelected" id="userSelected" >
+                            <option selected value="">Seleccione...</option>
+                            @foreach ($users as $user)
+                            <option value="{{$user->id}}">{{$user->first_name}} {{$user->last_name}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    @endif
                     <div class="form-group">
                         <label for="uuid">{{ __('UUID') }}</label>
                         <input type="text" class="form-control" name="uuid" id="uuid" required />

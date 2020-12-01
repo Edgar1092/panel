@@ -66,7 +66,7 @@
     "New Password": "Nueva Contraseña",
     "Confirm Password": "Confirmar Contraseña",
 
-    "Add Group": "Agregar Groupo",
+    "Add Group": "Agregar Grupo",
     "Add Screen": "Agregar Pantalla",
     "Add Content": "Agregar Contenido",
     "Upload Content": "Cargar Contenido",
@@ -158,9 +158,12 @@
     "User type": "Tipo de Usuario",
     "You have successfully register user.": "Haz registrado al usuario correctamente.",
     "You have successfully update user.": "Haz actualizado al usuario correctamente.",
+    "You have successfully removed the user": "Has eliminado con éxito al usuario",
     "You are about to remove this user": "Estas por eliminar este usuario",
     "There were some problems updating user": "Ha ocurrido un problema mientras actualizabamos el usuario",
-    "There were some problems adding new user": "Ha ocurrido un problema al agregar el nuevo usuario"
+    "There were some problems adding new user": "Ha ocurrido un problema al agregar el nuevo usuario",
+    "You have successfully active the user":"Has activado con éxito al usuario",
+    "You have successfully desactive the user":"Has desactivado con éxito al usuario"
     
     
 

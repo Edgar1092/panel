@@ -185,13 +185,16 @@ class UserController extends Controller
         $user = Auth::user();
         if($user->is_admin){
             $screens = Screen::orderBy('created_at', 'asc')->get();
+            $usuarios = User::orderBy('created_at', 'asc')->get();
         }else{
             $screens = $user->screens()->orderBy('created_at', 'asc')->get();
+            $usuarios = [];
         }
 
         return view('screens', [
             'user' => $user,
-            'screens' => $screens
+            'screens' => $screens,
+            'users' => $usuarios
         ]);
     }
 
@@ -209,7 +212,35 @@ class UserController extends Controller
             'users' => $usuarios
         ]);
     }
+    public function delete(Request $request)
+    {
+        $request->validate([
+            'uuid' => 'required'
+        ]);
 
+        $user = User::find($request->uuid);
+        $user->delete();
+
+        return back()->with('success', "You have successfully removed the user")->with('color', 'danger');
+    }
+    public function active(Request $request)
+    {
+
+        $user = User::find($request->uuid);
+        $user->is_active = 1;
+        $user->save();
+
+        return back()->with('success', "You have successfully active the user")->with('color', 'success');
+    }
+    public function desactive(Request $request)
+    {
+
+        $user = User::find($request->uuid);
+        $user->is_active = 0;
+        $user->save();
+
+        return back()->with('success', "You have successfully desactive the user")->with('color', 'success');
+    }
     public function addScreens(Request $request)
     {
         $request->validate([
@@ -218,13 +249,19 @@ class UserController extends Controller
         ]);
 
         $user = Auth::user();
-
+        
         $screen = new \App\Screen([
             'uuid' => $request->uuid,
             'name' => $request->name
         ]);
 
-        $user->screens()->save($screen);
+        if($user->is_admin){
+           $userSelected = User::find($request->userSelected);
+           $userSelected->screens()->save($screen);  
+        }else{
+          $user->screens()->save($screen);  
+        }
+        
 
         return back()->with('success', "You have successfully added the screen: $request->name.");
     }

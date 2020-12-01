@@ -19,6 +19,7 @@ class AuthController extends Controller
         ]);
 
         $credentials = request(['email', 'password']);
+        // $credentials = ['email'=>$request->email, 'password'=>$request->password, 'is_active'=> 1];
         
         if(!Auth::attempt($credentials)) {
             return response()->json([

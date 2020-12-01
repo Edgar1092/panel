@@ -60,7 +60,7 @@
                     <td>{{$user->phone}}</td>
                     <td>{{$user->is_admin ? 'Administrador' : 'Cliente'}}</td>
                     <td>
-                    <button type="button" class="btn btn-outline-primary"
+                    <button type="button" class="btn btn-outline-primary" data-toggle="tooltip" data-placement="bottom" title="Editar"
                         data-uuid="{{ $user->id }}"
                         data-fname="{{ $user->first_name }}"
                         data-lname="{{ $user->last_name }}"
@@ -68,11 +68,11 @@
                         data-phone="{{ $user->phone }}"
                         data-tuser="{{ $user->is_admin }}"
                         data-toggle="modal"
-                        data-target="#edUserModal">
+                        data-target="#edUserModal" >
                         <i class="fa fa-edit fa-2x"></i>
                     
                     </button>
-                    <button type="button" class="btn btn-outline-danger"
+                    <button type="button" class="btn btn-outline-danger" data-toggle="tooltip" data-placement="bottom" title="Eliminar"
                         data-uuid="{{ $user->id }}"
                         data-name="{{ $user->first_name }} {{$user->last_name}}"
                         data-toggle="modal"
@@ -80,6 +80,15 @@
                         <i class="fa fa-trash fa-2x"></i>
                     
                     </button>
+                    @if(!$user->is_active)
+                    <a class="btn btn-outline-success" data-toggle="tooltip" data-placement="bottom" title="Activar" href="{{ route('users.active', ['uuid' => $user->id]) }}">
+                        <i class="fas fa-check fa-2x"></i>
+                    </a>
+                    @elseif ($user->is_active)
+                    <a class="btn btn-outline-danger" data-toggle="tooltip" data-placement="bottom" title="Desactivar" href="{{ route('users.desactive', ['uuid' => $user->id]) }}">
+                        <i class="fas fa-times fa-2x"></i>
+                    </a>
+                    @endif
                     </td>
                     </tr>
                 @endforeach
