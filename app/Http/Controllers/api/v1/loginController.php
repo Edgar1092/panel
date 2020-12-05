@@ -99,7 +99,7 @@ class loginController extends Controller
     {
 
 
-        $user= $user = Auth::user();
+        $user = Auth::user();
 
 
 
