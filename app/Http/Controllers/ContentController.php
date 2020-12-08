@@ -83,8 +83,12 @@ class ContentController extends Controller
                 $sectionSchedules['night'][] = $item;
             }
         }
-
-        $playlists = $user->playlists()->get();
+        if($user->is_admin){
+            $playlists = $userSelected->playlists()->get();
+        }else{
+            $playlists = $user->playlists()->get();
+        }
+        
         foreach ($playlists as $playlist) {
             $content = $playlist->playlistContent()->get();
             foreach ($content as $item) {
@@ -96,9 +100,10 @@ class ContentController extends Controller
                 }
             }
         }
-
-        return view('playlist.screen', [
+        if($user->is_admin){
+        return view('admin.playlist.screen', [
             'user' => $user,
+            'userSelected' => $userSelected,
             'screen' => $screen,
             'content' => $content,
             'playlists' => $playlists,
@@ -107,6 +112,18 @@ class ContentController extends Controller
             'actives' => $actives,
             'count' => $count
         ]);
+        }else{
+            return view('playlist.screen', [
+                'user' => $user,
+                'screen' => $screen,
+                'content' => $content,
+                'playlists' => $playlists,
+                'schedules' => $userSchedules,
+                'sectionSchedules' => $sectionSchedules,
+                'actives' => $actives,
+                'count' => $count
+            ]);
+        }
     }
 
     public function userContent(Request $request)

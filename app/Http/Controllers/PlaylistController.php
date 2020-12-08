@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use Screen;
+// use Screen;
 use Illuminate\Http\Request;
+use App\Screen;
+use App\User;
 
 class PlaylistController extends Controller
 {
@@ -122,8 +124,16 @@ class PlaylistController extends Controller
         $array = [];
         $user = Auth::user();
 
-        $screen = $user->screens()->firstWhere('uuid', $request->uuid);
-        $screen->schedules()->delete();
+        if($user->is_admin){
+            $scrn = Screen::where('uuid', $request->uuid)->first();
+            $userSelected= User::find($scrn->user_id);
+            $screen = $userSelected->screens()->firstWhere('uuid', $request->uuid);
+            $screen->schedules()->delete();
+        }else{
+            $screen = $user->screens()->firstWhere('uuid', $request->uuid);
+            $screen->schedules()->delete();  
+        }
+       
 
         if ($request->action === "update") {
             if ($request->fulltimePlaylist !== 'none') {

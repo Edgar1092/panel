@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return redirect()->to("https://www.adhook.es/"); //return view('welcome');
+    // return redirect()->to("https://www.adhook.es/"); 
+    Route::get('home', 'HomeController@index')->name('home');
 });
 
 Route::prefix('profile')->group(function () {
@@ -26,6 +27,7 @@ Route::prefix('profile')->group(function () {
 
 Route::prefix('screens')->group(function () {
     Route::get('/', 'UserController@getScreens')->name('screens');
+    Route::get('/{uuid}', 'UserController@getScreens')->name('screens_admin');
     Route::put('/', 'UserController@uptScreens');
     Route::post('/', 'UserController@addScreens');
     Route::delete('/', 'UserController@delScreens');

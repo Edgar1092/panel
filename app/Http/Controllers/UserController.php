@@ -191,22 +191,31 @@ class UserController extends Controller
         }
     }
 
-      public function getScreens()
+      public function getScreens(Request $request)
     {
         $user = Auth::user();
         if($user->is_admin){
-            $screens = Screen::with('user')->orderBy('created_at', 'asc')->get();
+            $u = User::find($request->uuid);
+            $screens = $u->screens()->orderBy('created_at', 'asc')->get();
+            // $screens = Screen::with('user')->orderBy('created_at', 'asc')->get();
             $usuarios = User::where('is_active',1)->orderBy('created_at', 'asc')->get();
+            return view('admin.screens', [
+                'user' => $user,
+                'userSelected'=>$u,
+                'screens' => $screens,
+                'users' => $usuarios
+            ]);
         }else{
             $screens = $user->screens()->orderBy('created_at', 'asc')->get();
             $usuarios = [];
+            return view('screens', [
+                'user' => $user,
+                'screens' => $screens,
+                'users' => $usuarios
+            ]);
         }
         // var_dump($screens);
-        return view('screens', [
-            'user' => $user,
-            'screens' => $screens,
-            'users' => $usuarios
-        ]);
+        
     }
 
     public function getUsers(Request $request)
@@ -242,7 +251,7 @@ class UserController extends Controller
             $usuarios = [];
         }
         // var_dump($usuarios);
-        return view('users', [
+        return view('admin.users', [
             'user' => $user,
             'users' => $usuarios
         ]);
