@@ -46,18 +46,20 @@ Route::prefix('content')->group(function () {
     Route::post('/', 'ContentController@uploadContent');
     Route::put('/', 'ContentController@playlistContent');
     Route::delete('/', 'ContentController@delContent');
-    
     Route::get('/{uuid}', 'ContentController@viewContent')->name('screen_content');
     Route::post('/{uuid}', 'ContentController@uploadContent');
     Route::put('/{uuid}', 'ContentController@playlistContent');
+    Route::get('/admin/{uuid}', 'ContentController@userContent')->name('content_admin');
 });
 
 Route::prefix('playlist')->group(function () {
     Route::get('/', 'PlaylistController@getPlaylists')->name('playlist');
+    Route::get('/admin/{uuid}', 'PlaylistController@getPlaylists')->name('playlist_admin');
     Route::post('/', 'PlaylistController@addPlaylist');
     Route::delete('/', 'PlaylistController@delPlaylist');
     
     Route::get('/{id}', 'PlaylistController@viewPlaylist')->name('playlist_details');
+    Route::get('/admin/{id}/{uuid}', 'PlaylistController@viewPlaylist')->name('playlist_details_admin');
     Route::put('/{id}', 'PlaylistController@updatePlaylist');
 
     Route::post('/{id}/content', 'PlaylistController@delPlaylistContent')->name('remove_playlist_details');

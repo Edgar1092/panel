@@ -14,21 +14,40 @@ class PlaylistController extends Controller
     public function getPlaylists(Request $request)
     {
         $user = Auth::user();
-        $options = $user->playlists()->get();
-        $screens = $user->screens()->orderBy('created_at', 'asc')->get();
+        if($user->is_admin){
+            $userSelected = User::find($request->uuid);
+            $options = $userSelected->playlists()->get();
+            $screens = $userSelected->screens()->orderBy('created_at', 'asc')->get();
 
-        return view('playlist.list', [
-            'user' => $user,
-            'list' => $options,
-            'screens' => $screens,
-        ]);
+            return view('admin.playlist.list', [
+                'user' => $user,
+                'userSelected' => $userSelected,
+                'list' => $options,
+                'screens' => $screens,
+            ]);
+        }else{
+            $options = $user->playlists()->get();
+            $screens = $user->screens()->orderBy('created_at', 'asc')->get();
+
+            return view('playlist.list', [
+                'user' => $user,
+                'list' => $options,
+                'screens' => $screens,
+            ]);   
+        }
+        
     }
 
     public function viewPlaylist(Request $request)
     {
         $user = Auth::user();
-
-        $playlist = $user->playlists()->firstWhere('id', $request->id);
+        if($user->is_admin){
+            $userSelected = User::find($request->uuid);
+            $playlist = $userSelected->playlists()->firstWhere('id', $request->id);
+        }else{
+            $playlist = $user->playlists()->firstWhere('id', $request->id);
+        }
+        
         $content = $playlist->playlistContent()->get();
 
         $playlistContent = [];
@@ -43,13 +62,22 @@ class PlaylistController extends Controller
                 case "video": $count['videos']++; break;
             }
         }
-
-        return view('playlist.index', [
-            'user' => $user,
-            'playlist' => $playlist,
-            'content' => $playlistContent,
-            'count' => $count
-        ]);
+        if($user->is_admin){
+            return view('admin.playlist.index', [
+                'user' => $user,
+                'userSelected'=>$userSelected,
+                'playlist' => $playlist,
+                'content' => $playlistContent,
+                'count' => $count
+            ]);
+        }else{
+            return view('playlist.index', [
+                'user' => $user,
+                'playlist' => $playlist,
+                'content' => $playlistContent,
+                'count' => $count
+            ]);
+        }
     }
 
     public function updatePlaylist(Request $request)
@@ -58,7 +86,13 @@ class PlaylistController extends Controller
             'name' => 'required|string|min:2|max:225',
         ]);
 
-        $user = Auth::user();
+        $userLog = Auth::user();
+            
+        if($userLog->is_admin){
+            $user = User::find($request->idUser);
+        }else{
+            $user = Auth::user();
+        }
 
         $playlist = $user->playlists()->firstWhere('id', $request->id)->update([
             'name' => $request->name,
@@ -74,7 +108,13 @@ class PlaylistController extends Controller
             'name' => 'required|string|min:2|max:225',
         ]);
 
-        $user = Auth::user();
+        $userLog = Auth::user();
+            
+        if($userLog->is_admin){
+            $user = User::find($request->idUser);
+        }else{
+            $user = Auth::user();
+        }
 
         $playlist = new \App\Playlist([
             'name' => $request->name,
@@ -92,7 +132,13 @@ class PlaylistController extends Controller
             'id' => 'required'
         ]);
 
-        $user = Auth::user();
+        $userLog = Auth::user();
+            
+        if($userLog->is_admin){
+            $user = User::find($request->idUser);
+        }else{
+            $user = Auth::user();
+        }
 
         $playlist = $user->playlists()->firstWhere('id', $request->id);
         $playlist->delete();
@@ -106,7 +152,13 @@ class PlaylistController extends Controller
             'playlist' => 'required'
         ]);
 
-        $user = Auth::user();
+        $userLog = Auth::user();
+            
+        if($userLog->is_admin){
+            $user = User::find($request->idUser);
+        }else{
+            $user = Auth::user();
+        }
 
         $playlist = $user->playlists()->firstWhere('id', $request->id);        
         $content = $request->content;

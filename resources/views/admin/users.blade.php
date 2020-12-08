@@ -119,6 +119,12 @@
                                     <a class="dropdown-item" href="{{ route('screens_admin', ['uuid' => $user->id]) }}">
                                         Pantallas
                                     </a>
+                                    <a class="dropdown-item" href="{{ route('content_admin', ['uuid' => $user->id]) }}">
+                                        Contenidos
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('playlist_admin', ['uuid' => $user->id]) }}">
+                                        Playlist
+                                    </a>
                                     </div>
 
                                 </div>

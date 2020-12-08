@@ -53,7 +53,7 @@
                         <div class="card-body">
                         <form action="{{ route('set_playlist_screen', ['uuid' => $screen->uuid]) }}" method="post">
                             @csrf
-                            <input type="hidden" name="screen" value="$screen->uuid">
+                            <input type="hidden" name="screen" value="{{$screen->uuid}}">
                             <input type="hidden" name="fulltimePlaylist" value="none">
                             <div class="row">
                                 <div class="col-md-3">

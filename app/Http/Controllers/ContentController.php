@@ -129,14 +129,27 @@ class ContentController extends Controller
     public function userContent(Request $request)
     {
         $user = Auth::user();
-        $content = $user->contents()->get();
-        $playlist = $user->playlists()->get();
+        if($user->is_admin){
+            $userSelected= User::find($request->uuid);
+            $content = $userSelected->contents()->get();
+            $playlist = $userSelected->playlists()->get();
+            return view('admin.content.index', [
+                'user' => $user,
+                'userSelected' => $userSelected,
+                'content' => $content,
+                'playlist' => $playlist
+            ]);
+        }else{
+            $content = $user->contents()->get();
+            $playlist = $user->playlists()->get();
+            return view('content.index', [
+                'user' => $user,
+                'content' => $content,
+                'playlist' => $playlist
+            ]);
+        }
+        
 
-        return view('content.index', [
-            'user' => $user,
-            'content' => $content,
-            'playlist' => $playlist
-        ]);
     }
 
     public function uploadContent(Request $request)
@@ -147,7 +160,13 @@ class ContentController extends Controller
 
         if ($request->hasFile('file')) {
 
-            $user = Auth::user();
+            $userLog = Auth::user();
+            
+            if($userLog->is_admin){
+                $user = User::find($request->idUser);
+            }else{
+                $user = Auth::user();
+            }
             $files = $request->file('file');
 
             //$allowedfileExtension=['pdf','jpg','png','docx'];
@@ -210,7 +229,13 @@ class ContentController extends Controller
 
     public function delContent(Request $request)
     {
-        $user = Auth::user();
+        $userLog = Auth::user();
+            
+        if($userLog->is_admin){
+            $user = User::find($request->idUser);
+        }else{
+            $user = Auth::user();
+        }
         $content = $request->content;
 
         foreach ($content as $index) {
@@ -227,7 +252,13 @@ class ContentController extends Controller
             'id' => 'required'
         ]);
 
-        $user = Auth::user();
+        $userLog = Auth::user();
+            
+        if($userLog->is_admin){
+            $user = User::find($request->idUser);
+        }else{
+            $user = Auth::user();
+        }
         $playlist = $user->playlists()->firstWhere('id', $request->id);
         
         $array = [];
