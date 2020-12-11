@@ -58,11 +58,11 @@
                         <thead>
                                 <tr>
                                 <th>UID</th>
-                                <th>Nombres</th>
-                                <th>Apellidos</th>
+                                <th>Nombres y Apellidos</th>
                                 <th>Email</th>
                                 <th>Telefono</th>
                                 <th>Perfil</th>
+                                <th>Estatus</th>
                                 <th>Acciones</th>
                                 </tr>
                         </thead>
@@ -70,11 +70,17 @@
                             @foreach ($users as $user)
                                 <tr>
                                 <td>{{$user->uuid}}</td>
-                                <td>{{$user->first_name}}</td>
-                                <td>{{$user->last_name}}</td>
+                                <td>{{$user->first_name}} {{$user->last_name}}</td>
                                 <td>{{$user->email}}</td>
                                 <td>{{$user->phone}}</td>
                                 <td>{{$user->is_admin ? 'Administrador' : 'Cliente'}}</td>
+                                <td>
+                                @if(!$user->is_active)
+                                <span class="text-danger">Desactivado</span>
+                                @else
+                                <span class="text-success">Activado</span>
+                                @endif
+                                </td>
                                 <td>
                                 <!-- <button type="button" class="btn btn-outline-primary" title="Editar"
                                      >

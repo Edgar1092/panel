@@ -199,11 +199,15 @@ class UserController extends Controller
             $screens = $u->screens()->orderBy('created_at', 'asc')->get();
             // $screens = Screen::with('user')->orderBy('created_at', 'asc')->get();
             $usuarios = User::where('is_active',1)->orderBy('created_at', 'asc')->get();
+            $screensOn = $u->screens()->where('offline',0)->count();
+            $screensOff = $u->screens()->where('offline',1)->count();
             return view('admin.screens', [
                 'user' => $user,
                 'userSelected'=>$u,
                 'screens' => $screens,
-                'users' => $usuarios
+                'users' => $usuarios,
+                'screensOn' =>$screensOn,
+                'screensOff' => $screensOff
             ]);
         }else{
             $screens = $user->screens()->orderBy('created_at', 'asc')->get();

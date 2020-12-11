@@ -77,6 +77,9 @@
                                         <div class="col">
                                             <h4>{{ __('Playlist') }}</h4>
                                         </div>
+                                        <div class="col">
+                                            <h4>Editar Contenido</h4>
+                                        </div>
                                     </div>
                                     <div id="accordion">
                                         @if (count($schedules) > 0)
@@ -110,6 +113,20 @@
                                                                 <option disabled>{{ __('You have no playlists yet') }}...</option>
                                                                 @endforelse
                                                             </select>
+                                                        </div>
+                                                        <div class="col my-2">
+                                                                @forelse ($playlists as $item)
+                                                                
+                                                                    @foreach ($actives as $value)
+                                                                        @if($value->schedule_id == $schedule->id && $value->playlist_id == $item->id && $value->fulltime == 0)
+                                                                        <a class="btn btn-outline-success" href="{{ route('playlist_details_admin', ['id' => $value->playlist_id, 'uuid' => $userSelected->id]) }}">Editar contenido</a>
+                                                                        @endif
+                                                                    @endforeach
+                                                                
+                                                                @empty
+                                                               
+                                                                @endforelse
+                                                           
                                                         </div>
                                                     </div>
                                                 @endforeach
@@ -147,6 +164,20 @@
                                                                 @endforelse
                                                             </select>
                                                         </div>
+                                                        <div class="col my-2">
+                                                                @forelse ($playlists as $item)
+                                                                
+                                                                    @foreach ($actives as $value)
+                                                                        @if($value->schedule_id == $schedule->id && $value->playlist_id == $item->id && $value->fulltime == 0)
+                                                                        <a class="btn btn-outline-success" href="{{ route('playlist_details_admin', ['id' => $value->playlist_id, 'uuid' => $userSelected->id]) }}">Editar contenido</a>
+                                                                        @endif
+                                                                    @endforeach
+                                                                
+                                                                @empty
+                                                               
+                                                                @endforelse
+                                                           
+                                                        </div>
                                                     </div>
                                                 @endforeach
                                                 </div>
@@ -182,6 +213,20 @@
                                                                 <option disabled>{{ __('You have no playlists yet') }}...</option>
                                                                 @endforelse
                                                             </select>
+                                                        </div>
+                                                        <div class="col my-2">
+                                                                @forelse ($playlists as $item)
+                                                                
+                                                                    @foreach ($actives as $value)
+                                                                        @if($value->schedule_id == $schedule->id && $value->playlist_id == $item->id && $value->fulltime == 0)
+                                                                        <a class="btn btn-outline-success" href="{{ route('playlist_details_admin', ['id' => $value->playlist_id, 'uuid' => $userSelected->id]) }}">Editar contenido</a>
+                                                                        @endif
+                                                                    @endforeach
+                                                                
+                                                                @empty
+                                                               
+                                                                @endforelse
+                                                           
                                                         </div>
                                                     </div>
                                                 @endforeach

@@ -5,6 +5,9 @@
     #addScreenModalLocation { height: 300px; }--}}
     #viewScreenModalLocation { height: width: 100%; 100%; }
     .select-screen { background-color: #e3f2fd; cursor: pointer; }
+    .select-screen-off { background-color: #fdd3d3; cursor: pointer; }
+    .text-on { color: #e3f2fd; }
+    .text-off { color: #fdd3d3; }
 </style>
 @endsection
 @section('content')
@@ -59,7 +62,10 @@
                     <div class="col-md-3">
                         <h3>{{ __('Screens') }} <small style="font-size:50%;"><i>{{ count($screens) }} {{ __('out of') }} {{ count($screens) }}</i></small>
                         </h3>
+                        <label> <i class="fas fa-circle text-success"></i> {{$screensOn}} Online</label><br>
+                        <label> <i class="fas fa-circle text-danger"></i> {{$screensOff}} Offline</label>
                         @foreach ($screens as $screen)
+                        @if($screen->offline === 0)
                         <div class="row my-2 select-screen"
                             data-uuid="{{ $screen->uuid }}"
                             data-name="{{ $screen->name }}"
@@ -77,6 +83,25 @@
                                 <small>UID: {{ $screen->uuid }}</small>
                             </div>
                         </div>
+                        @else
+                        <div class="row my-2 select-screen select-screen-off"
+                            data-uuid="{{ $screen->uuid }}"
+                            data-name="{{ $screen->name }}"
+                            data-lat="{{ $screen->lat }}"
+                            data-lng="{{ $screen->lng }}"
+                            data-href="{{ route('screen_content', ['uuid' => $screen->uuid]) }}">
+                            <div class="col-md-12 py-3">
+                                <button type="button" class="close text-danger"
+                                    data-uuid="{{ $screen->uuid }}"
+                                    data-name="{{ $screen->name }}"
+                                    data-iduser="{{ $screen->user->id }}"
+                                    data-toggle="modal"
+                                    data-target="#delScreenModal">×</button>
+                                {{ $loop->iteration }}. {{ $screen->name }} <br />
+                                <small>UID: {{ $screen->uuid }}</small>
+                            </div>
+                        </div>
+                        @endif
                         @endforeach
                     </div>
                     <div class="col-md-9 pl-4">
