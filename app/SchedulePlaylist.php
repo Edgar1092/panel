@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class SchedulePlaylist extends Model
 {
     protected $fillable = [
-        'schedule_id', 'playlist_id', 'screen_id', 'fulltime'
+        'schedule_id', 'playlist_id', 'screen_id', 'fulltime','locked'
     ];
 
     protected $hidden = [

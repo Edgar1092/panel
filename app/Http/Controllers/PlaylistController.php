@@ -6,6 +6,8 @@ use Auth;
 // use Screen;
 use Illuminate\Http\Request;
 use App\Screen;
+use App\SchedulePlaylist;
+use App\ScheduleUser;
 use App\User;
 
 class PlaylistController extends Controller
@@ -215,5 +217,66 @@ class PlaylistController extends Controller
         }
 
         return back()->with('success', 'Playlist successfully updated on this screen!');
+    }
+
+    public function lockShcedule(Request $request)
+    {
+        $array = [];
+        $user = Auth::user();
+
+       
+
+        $scrn2 = ScheduleUser::where('user_id', $request->idUser)->get();
+
+        foreach($scrn2 as $desbloqueo){
+            $scrn3 = ScheduleUser::find($desbloqueo->id);
+
+            $scrn3->locked=0;
+            $scrn3->save(); 
+        }
+
+      foreach($request->schedule_id as $bloqueo){
+        $scrn = ScheduleUser::where('user_id', $request->idUser)->where('schedule_id',$bloqueo)->first();
+        $scrn->locked=1;
+        $scrn->save();
+      }
+
+
+            // var_dump('pantalla',$scrn);
+            // $userSelected= User::find($scrn->user_id);
+            // $screen = SchedulePlaylist::where('screen_id',$scrn->id)->where('schedule_id',$request->id)->first();
+            // $encontrar= ScheduleUser::find($screen->id);
+
+    
+       
+
+        // if ($request->action === "update") {
+        //     if ($request->fulltimePlaylist !== 'none') {
+        //         $schedules = \App\Schedule::all();
+        //         foreach($schedules as $schedule) {
+        //             $array[] = new \App\SchedulePlaylist([
+        //                 'fulltime' => false,
+        //                 'screen_id' => $screen->id,
+        //                 'playlist_id' => $request->fulltimePlaylist,
+        //                 'schedule_id' => $schedule->id,
+        //             ]);
+        //         }
+        //     } else {
+        //         foreach($request->playlist as $key => $value) {
+        //             if ($value !== "none") {
+        //                 $array[] = new \App\SchedulePlaylist([
+        //                     'fulltime' => false,
+        //                     'screen_id' => $screen->id,
+        //                     'playlist_id' => $value,
+        //                     'schedule_id' => $key,
+        //                 ]);
+        //             }
+        //         }
+        //     }
+            
+        //     $screen->schedules()->saveMany($array);
+        // }
+
+         return back()->with('success', 'Schedule locked updated on this screen!');
     }
 }

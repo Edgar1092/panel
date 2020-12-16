@@ -60,6 +60,8 @@ Route::prefix('playlist')->group(function () {
     
     Route::get('/{id}', 'PlaylistController@viewPlaylist')->name('playlist_details');
     Route::get('/admin/{id}/{uuid}', 'PlaylistController@viewPlaylist')->name('playlist_details_admin');
+    Route::post('/bloquear/admin', 'PlaylistController@lockShcedule')->name('block_shcedule');
+    Route::get('/desbloquear/admin/{id}/{uuid}/{idScreen}', 'PlaylistController@unlockShcedule')->name('unblock_shcedule');
     Route::put('/{id}', 'PlaylistController@updatePlaylist');
 
     Route::post('/{id}/content', 'PlaylistController@delPlaylistContent')->name('remove_playlist_details');

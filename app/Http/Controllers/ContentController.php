@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Screen;
 use App\User;
+use App\Schedule;
 
 // TEMPORAL FACADE
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,7 @@ class ContentController extends Controller
             $content = $userSelected->contents()->get();
             $playlists = $userSelected->playlists()->get();
             $schedules = $userSelected->schedules()->get();
+            $schedules2 = Schedule::get();
         }else{
             $screen = $user->screens()->firstWhere('uuid', $request->uuid);  
             $actives = $screen->schedules()->get();
@@ -82,6 +84,7 @@ class ContentController extends Controller
             else {
                 $sectionSchedules['night'][] = $item;
             }
+            
         }
         if($user->is_admin){
             $playlists = $userSelected->playlists()->get();
@@ -109,6 +112,8 @@ class ContentController extends Controller
             'playlists' => $playlists,
             'schedules' => $userSchedules,
             'sectionSchedules' => $sectionSchedules,
+            'schedulesFull' =>$schedules2,
+            'schedulesUsuario' => $schedules,
             'actives' => $actives,
             'count' => $count
         ]);
@@ -120,6 +125,7 @@ class ContentController extends Controller
                 'playlists' => $playlists,
                 'schedules' => $userSchedules,
                 'sectionSchedules' => $sectionSchedules,
+                'schedulesUsuario' => $schedules,
                 'actives' => $actives,
                 'count' => $count
             ]);

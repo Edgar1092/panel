@@ -57,6 +57,7 @@
                         <h4>{{ __('Playlist') }}</h4>
                     </div>
                 </div>
+        
                 <div id="accordion">
                     @if (count($schedules) > 0)
                     <div class="card">
@@ -75,13 +76,21 @@
                                         {{ $schedule->init_at }} - {{ $schedule->ends_at }}
                                     </div>
                                     <div class="col my-2">
-                                        <select class="form-control" name="playlist[{{$schedule->id}}]">
+                                        <select class="form-control" name="playlist[{{$schedule->id}}]"  @foreach ($schedulesUsuario as $value)
+                                                                        @if($value->schedule_id == $schedule->id && $value->locked == 1)
+                                                                            disabled
+                                                                         
+                                                                        @endif
+                                                                    @endforeach>
                                             <option value="none">{{ __('None') }}</option>
                                             @forelse ($playlists as $item)
                                             <option value="{{ $item->id }}"
                                                 @foreach ($actives as $value)
                                                     @if($value->schedule_id == $schedule->id && $value->playlist_id == $item->id && $value->fulltime == 0)
                                                         selected
+                                                    @endif
+                                                    @if($value->schedule_id == $schedule->id && $value->playlist_id == $item->id && $value->locked==1)
+                                                        disabled
                                                     @endif
                                                 @endforeach
                                             >{{ $item->name }}</option>
@@ -111,7 +120,12 @@
                                         {{ $schedule->init_at }} - {{ $schedule->ends_at }}
                                     </div>
                                     <div class="col my-2">
-                                        <select class="form-control" name="playlist[{{$schedule->id}}]">
+                                        <select class="form-control" name="playlist[{{$schedule->id}}]" @foreach ($schedulesUsuario as $value)
+                                                                        @if($value->schedule_id == $schedule->id && $value->locked == 1)
+                                                                            disabled
+                                                                         
+                                                                        @endif
+                                                                    @endforeach>
                                             <option value="none">{{ __('None') }}</option>
                                             @forelse ($playlists as $item)
                                             <option value="{{ $item->id }}"
@@ -139,15 +153,24 @@
                             </button>
                         </h5>
                         </div>
+                        
                         <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-parent="#accordion">
                             <div class="card-body">
+                          
                             @foreach ($sectionSchedules['night'] as $schedule)
+                      
                                 <div class="row text-center">
                                     <div class="col my-2">
                                         {{ $schedule->init_at }} - {{ $schedule->ends_at }}
                                     </div>
                                     <div class="col my-2">
-                                        <select class="form-control" name="playlist[{{$schedule->id}}]">
+                                        <select class="form-control" name="playlist[{{$schedule->id}}]"
+                                        @foreach ($schedulesUsuario as $value)
+                                                                        @if($value->schedule_id == $schedule->id && $value->locked == 1)
+                                                                            disabled
+                                                                         
+                                                                        @endif
+                                                                    @endforeach>
                                             <option value="none">{{ __('None') }}</option>
                                             @forelse ($playlists as $item)
                                             <option value="{{ $item->id }}"
@@ -227,4 +250,6 @@
 <script>
     $('.collapse').collapse()
 </script>
+
+
 @endsection
