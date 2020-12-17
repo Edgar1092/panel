@@ -14,8 +14,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    // return redirect()->to("https://www.adhook.es/"); 
-    Route::get('home', 'HomeController@index')->name('home');
+    return redirect()->to("https://www.adhook.es/"); 
+    // Route::get('home', 'HomeController@index')->name('home');
 });
 
 Route::prefix('profile')->group(function () {
@@ -34,6 +34,7 @@ Route::prefix('screens')->group(function () {
 });
 Route::prefix('users')->group(function () {
     Route::get('/', 'UserController@getUsers')->name('users');
+    Route::get('/promotores', 'UserController@getUsersPromotores')->name('promotores');
     Route::post('update', 'UserController@edit')->name('users.update');
     Route::post('/', 'UserController@store');
     Route::delete('/', 'UserController@delete');

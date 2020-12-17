@@ -47,6 +47,7 @@ class UserController extends Controller
         $user->password = bcrypt($request->password);
         $user->phone = $request->phone;
         $user->is_admin = $request->userType;
+        $user->is_promotor = $request->is_promotor;
         if ($request->avatar) {
             $avatarName = time() . '.' . request()->avatar->getClientOriginalExtension();
             $request->avatar->storeAs( $user->id . '/avatars', $avatarName);
@@ -95,6 +96,7 @@ class UserController extends Controller
         
         $user->phone = $request->phone;
         $user->is_admin = $request->userType;
+        $user->is_promotor = $request->is_promotor;
         if ($request->avatar) {
             $avatarName = time() . '.' . request()->avatar->getClientOriginalExtension();
             $request->avatar->storeAs( $user->id . '/avatars', $avatarName);
@@ -245,10 +247,10 @@ class UserController extends Controller
                                 ->orWhere('phone', 'LIKE', '%'.$request->search.'%');   
                 }
 
-                $usuarios = $query->orderBy('created_at', 'asc')->paginate(10); 
+                $usuarios = $query->where('is_promotor', 0)->orderBy('created_at', 'asc')->paginate(10); 
                 
             }else{
-              $usuarios = User::orderBy('created_at', 'asc')->paginate(10);  
+              $usuarios = User::where('is_promotor', 0)->orderBy('created_at', 'asc')->paginate(10);  
             }
             
         }else{
@@ -256,6 +258,44 @@ class UserController extends Controller
         }
         // var_dump($usuarios);
         return view('admin.users', [
+            'user' => $user,
+            'users' => $usuarios
+        ]);
+    }
+    public function getUsersPromotores(Request $request)
+    {
+        if(!Auth::user()){
+            return redirect('login');
+        }
+        $user = Auth::user();
+        if($user->is_admin){
+            if($request->search){
+                if(strtolower($request->search) == 'administrador' || strtolower($request->search) == 'administradores'){
+                    $query = User::where('is_admin', 1);
+                }else if(strtolower($request->search) == 'cliente' || strtolower($request->search) == 'clientes'){
+                    $query = User::where('is_admin', 0);
+                }else if(strtolower($request->search) == 'activo' || strtolower($request->search) == 'activos'){
+                    $query = User::where('is_active', 1);
+                }else if(strtolower($request->search) == 'desactivo' || strtolower($request->search) == 'desactivos' || strtolower($request->search) == 'inactivo' || strtolower($request->search) == 'inactivos'){
+                    $query = User::where('is_active', 0);
+                }else{
+                 $query = User::where('first_name', 'LIKE', '%'.$request->search.'%')
+                                ->orWhere('last_name', 'LIKE', '%'.$request->search.'%')
+                                ->orWhere('email', 'LIKE', '%'.$request->search.'%')
+                                ->orWhere('phone', 'LIKE', '%'.$request->search.'%');   
+                }
+
+                $usuarios = $query->where('is_promotor', 1)->orderBy('created_at', 'asc')->paginate(10); 
+                
+            }else{
+              $usuarios = User::where('is_promotor', 1)->orderBy('created_at', 'asc')->paginate(10);  
+            }
+            
+        }else{
+            $usuarios = [];
+        }
+        // var_dump($usuarios);
+        return view('admin.users_promotores', [
             'user' => $user,
             'users' => $usuarios
         ]);

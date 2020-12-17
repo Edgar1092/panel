@@ -123,7 +123,7 @@
                                             </div>
                                             <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
                                                 <div class="card-body">
-                                             
+                                                
                                                 @foreach ($sectionSchedules['morning'] as $schedule)
                                                     <div class="row text-center">
                                                         <div class="col my-2">
@@ -132,7 +132,7 @@
                                                         <div class="col my-2">
                                                             <select class="form-control" name="playlist[{{$schedule->id}}]">
                                                                 <option value="none">{{ __('None') }}</option>
-                                                                @forelse ($playlists as $item)
+                                                                @forelse ($playlitsFinal as $item)
                                                                 <option value="{{ $item->id }}"
                                                                     @foreach ($actives as $value)
                                                                         @if($value->schedule_id == $schedule->id && $value->playlist_id == $item->id && $value->fulltime == 0)
@@ -148,7 +148,7 @@
                                                         </div>
                                                         <div class="col my-2">
                                                      
-                                                                @forelse ($playlists as $item)
+                                                                @forelse ($playlitsFinal as $item)
                                                                 
                                                                     @foreach ($actives as $value)
                                                                         @if($value->schedule_id == $schedule->id && $value->playlist_id == $item->id && $value->fulltime == 0)
@@ -191,7 +191,7 @@
                                                         <div class="col my-2">
                                                             <select class="form-control" name="playlist[{{$schedule->id}}]">
                                                                 <option value="none">{{ __('None') }}</option>
-                                                                @forelse ($playlists as $item)
+                                                                @forelse ($playlitsFinal as $item)
                                                                 <option value="{{ $item->id }}"
                                                                     @foreach ($actives as $value)
                                                                         @if($value->schedule_id == $schedule->id && $value->playlist_id == $item->id && $value->fulltime == 0)
@@ -241,7 +241,7 @@
                                                         <div class="col my-2">
                                                             <select class="form-control" name="playlist[{{$schedule->id}}]">
                                                                 <option value="none">{{ __('None') }}</option>
-                                                                @forelse ($playlists as $item)
+                                                                @forelse ($playlitsFinal as $item)
                                                                 <option value="{{ $item->id }}"
                                                                     @foreach ($actives as $value)
                                                                         @if($value->schedule_id == $schedule->id && $value->playlist_id == $item->id && $value->fulltime == 0)
@@ -311,7 +311,7 @@
                         <div class="col-sm-12 col-md-6 offset-md-3">
                             <select class="form-control" name="fulltimePlaylist" id="fulltimePlaylist">
                                 <option value="none" disabled>{{ __('Select Playlist') }}</option>
-                                @forelse ($playlists as $item)
+                                @forelse ($playlitsFinal as $item)
                                 {{--<option value="{{ $item->id }}" {{ ($actives[0]->playlist_id ?? false) == $item->id && ($actives[0]->fulltime ?? 0) == 1 ? 'selected' : '' }}>{{ $item->name }}</option>--}}
                                 <option value="{{ $item->id }}">{{ $item->name }}</option>
                                 @empty

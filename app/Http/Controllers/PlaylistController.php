@@ -182,9 +182,14 @@ class PlaylistController extends Controller
             $scrn = Screen::where('uuid', $request->uuid)->first();
             $userSelected= User::find($scrn->user_id);
             $screen = $userSelected->screens()->firstWhere('uuid', $request->uuid);
+            $schedulesUser = ScheduleUser::where('user_id', $userSelected->id)->where('locked',1)->get();
+            $schedulesPlaylistScreen = SchedulePlaylist::where('screen_id',$scrn->id)->get();
             $screen->schedules()->delete();
+            
         }else{
             $screen = $user->screens()->firstWhere('uuid', $request->uuid);
+            $schedulesPlaylistScreen = SchedulePlaylist::where('screen_id',$screen->id)->get();
+            $schedulesUser = ScheduleUser::where('user_id', $user->id)->where('locked',1)->get();
             $screen->schedules()->delete();  
         }
        
@@ -214,6 +219,25 @@ class PlaylistController extends Controller
             }
             
             $screen->schedules()->saveMany($array);
+
+            if(count($schedulesUser)>0){
+                foreach ($schedulesUser as $key => $value) {
+                    $schu = ScheduleUser::where('user_id', $value->user_id)->where('schedule_id',$value->schedule_id)->first();
+                    $schu->locked=1;
+                    $schu->save();
+                    if(!$user->is_admin){
+                        foreach ($schedulesPlaylistScreen as $key1 => $value1) {
+                            if($value->schedule_id == $value1->schedule_id){
+                                $schedplay = SchedulePlaylist::where('schedule_id',$value1->schedule_id)
+                                ->where('screen_id',$value1->screen_id)->first();
+                                $schedplay->playlist_id = $value1->playlist_id;
+                                $schedplay->save();
+                            }
+                        }
+                    }
+                }  
+            }
+            
         }
 
         return back()->with('success', 'Playlist successfully updated on this screen!');
@@ -227,19 +251,23 @@ class PlaylistController extends Controller
        
 
         $scrn2 = ScheduleUser::where('user_id', $request->idUser)->get();
+        if($scrn2){
+            foreach($scrn2 as $desbloqueo){
+                $scrn3 = ScheduleUser::find($desbloqueo->id);
 
-        foreach($scrn2 as $desbloqueo){
-            $scrn3 = ScheduleUser::find($desbloqueo->id);
-
-            $scrn3->locked=0;
-            $scrn3->save(); 
+                $scrn3->locked=0;
+                $scrn3->save(); 
+            }  
         }
-
-      foreach($request->schedule_id as $bloqueo){
-        $scrn = ScheduleUser::where('user_id', $request->idUser)->where('schedule_id',$bloqueo)->first();
-        $scrn->locked=1;
-        $scrn->save();
-      }
+        
+        if($request->schedule_id){
+            foreach($request->schedule_id as $bloqueo){
+                $scrn = ScheduleUser::where('user_id', $request->idUser)->where('schedule_id',$bloqueo)->first();
+                $scrn->locked=1;
+                $scrn->save();
+            }
+        }
+      
 
 
             // var_dump('pantalla',$scrn);

@@ -113,6 +113,22 @@
               </li>
             </ul>
           </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-copy"></i>
+              <p>
+                Promotores
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ route('promotores') }}" class="nav-link">
+                  <i class="fas fa-circle nav-icon"></i>
+                  <p>Lista</p>
+                </a>
+              </li>
+            </ul>
+          </li>
 
 
 

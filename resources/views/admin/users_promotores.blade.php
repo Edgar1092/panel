@@ -8,12 +8,12 @@
       <div class="container-fluid">
         <div class="row mb-2">
           <div class="col-sm-6">
-            <h1 class="m-0">Usuarios</h1>
+            <h1 class="m-0">Promotores</h1>
           </div><!-- /.col -->
           <div class="col-sm-6">
             <ol class="breadcrumb float-sm-right">
               <li class="breadcrumb-item"><a href="#">Inicio</a></li>
-              <li class="breadcrumb-item active">Usuarios </li>
+              <li class="breadcrumb-item active">Promotores </li>
             </ol>
           </div><!-- /.col -->
         </div><!-- /.row -->
@@ -35,14 +35,14 @@
                     </div>
                     <div class="row">
                         <div class="col-md-6">
-                            <form action="{{ route('users') }}" method="GET" >
+                            <form action="{{ route('promotores') }}" method="GET" >
                                 <div class="form-group input-group">
                                     <input type="text" class="form-control" name="search" id="search" />
                                     <span class="input-group-btn">
                                         <button type="submit" class="btn btn-success" data-toggle="tooltip" data-placement="bottom" title="Buscar"><i class="fas fa-search"></i></button>
                                     </span>
                                     <span class="input-group-btn">
-                                    <a class="btn btn-danger" data-toggle="tooltip" data-placement="bottom" title="Limpiar" href="{{ route('users') }}">
+                                    <a class="btn btn-danger" data-toggle="tooltip" data-placement="bottom" title="Limpiar" href="{{ route('promotores') }}">
                                         <i class="fas fa-trash"></i>
                                     </a>
                                     </span>
@@ -73,7 +73,7 @@
                                 <td>{{$user->first_name}} {{$user->last_name}}</td>
                                 <td>{{$user->email}}</td>
                                 <td>{{$user->phone}}</td>
-                                <td>{{$user->is_admin ? 'Administrador' : 'Cliente'}}</td>
+                                <td>{{!$user->is_admin && $user->is_promotor ? 'Promotor' : ''}}</td>
                                 <td>
                                 @if(!$user->is_active)
                                 <span class="text-danger">Desactivado</span>
@@ -168,14 +168,15 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="userType">{{ __('User type') }}</label>
                         <select class="form-control" name="userType" id="aduserType" >
                             <option selected value="0">Cliente</option>
                             <option value="1">Administrador</option>
                         </select>
-                    </div>
-                    <input type="hidden" name="is_promotor" id="adPromotor" value="0" />
+                    </div> -->
+                    <input type="hidden" name="userType" id="aduserType" value="0" />
+                    <input type="hidden" name="is_promotor" id="adPromotor" value="1" />
                     <div class="form-group">
                         <label for="fName">{{ __('Firstname') }}</label>
                         <input type="text" class="form-control" name="fName" id="adfName" required />
@@ -223,14 +224,15 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="userType">{{ __('User type') }}</label>
                         <select class="form-control" name="userType" id="userType" >
                             <option selected value="0">Cliente</option>
                             <option value="1">Administrador</option>
                         </select>
-                    </div>
-                    <input type="hidden" name="is_promotor" id="adPromotor" value="0" />
+                    </div> -->
+                    <input type="hidden" name="userType" id="aduserType" value="0" />
+                    <input type="hidden" name="is_promotor" id="adPromotor" value="1" />
                     <input type="hidden" class="form-control" name="uuid" id="uuid" />
                     <div class="form-group">
                         <label for="fName">{{ __('Firstname') }}</label>

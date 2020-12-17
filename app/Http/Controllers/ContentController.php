@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Screen;
 use App\User;
 use App\Schedule;
+use App\ScheduleUser;
 
 // TEMPORAL FACADE
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,9 @@ class ContentController extends Controller
 
     public function viewContent(Request $request)
     {
+        if(!Auth::user()){
+            return redirect('login');
+        }
         $user = Auth::user();
         $count = [ 'images' => 0, 'videos' => 0 ];
         if($user->is_admin){
@@ -37,6 +41,11 @@ class ContentController extends Controller
             $content = $userSelected->contents()->get();
             $playlists = $userSelected->playlists()->get();
             $schedules = $userSelected->schedules()->get();
+            $playlistsPromotores = User::where("is_promotor", 1)
+            ->where("users.id","!=", $userSelected->id)
+            ->join('playlists', 'playlists.user_id', '=', 'users.id')
+            ->select('playlists.*')
+            ->get();
             $schedules2 = Schedule::get();
         }else{
             $screen = $user->screens()->firstWhere('uuid', $request->uuid);  
@@ -44,20 +53,32 @@ class ContentController extends Controller
             $content = $user->contents()->get();
             $playlists = $user->playlists()->get();
             $schedules = $user->schedules()->get();
+            $schedulesUserBlock = ScheduleUser::where('user_id', $user->id)->where('locked',1)->count();
         }
 
         /**
          * FIX WITHOUT BACKOFFICE ALL SCHEDULES
          */
-        
-        if (count($schedules) < 1) {
-            for ($i=1; $i <= 48; $i++) {
-                DB::table('schedule_users')->insert([
-                    'schedule_id' => $i,
-                    'user_id' => $user->id,
-                ]);
+        if($user->is_admin){
+            if (count($schedules) < 1) {
+                for ($i=1; $i <= 48; $i++) {
+                    DB::table('schedule_users')->insert([
+                        'schedule_id' => $i,
+                        'user_id' => $userSelected->id,
+                    ]);
+                }
             }
+        }else{
+            if (count($schedules) < 1) {
+                for ($i=1; $i <= 48; $i++) {
+                    DB::table('schedule_users')->insert([
+                        'schedule_id' => $i,
+                        'user_id' => $user->id,
+                    ]);
+                }
+            }  
         }
+        
         
         /**
          * END OF FIX
@@ -87,10 +108,15 @@ class ContentController extends Controller
             
         }
         if($user->is_admin){
+            $p =[];
             $playlists = $userSelected->playlists()->get();
         }else{
             $playlists = $user->playlists()->get();
         }
+
+        // print_r($playlists);
+        // echo '<br><br>';
+        // print_r($playlistsPromotores);
         
         foreach ($playlists as $playlist) {
             $content = $playlist->playlistContent()->get();
@@ -103,7 +129,16 @@ class ContentController extends Controller
                 }
             }
         }
+        
+        $playlitsFinal = [];
         if($user->is_admin){
+            foreach ($playlists as $key => $value) {
+                array_push($playlitsFinal,$value);
+            }
+            foreach ($playlistsPromotores as $key => $value) {
+                array_push($playlitsFinal,$value);
+            }
+            // print_r($playlistsFinal);
         return view('admin.playlist.screen', [
             'user' => $user,
             'userSelected' => $userSelected,
@@ -114,8 +149,10 @@ class ContentController extends Controller
             'sectionSchedules' => $sectionSchedules,
             'schedulesFull' =>$schedules2,
             'schedulesUsuario' => $schedules,
+            'playlistsPromotores' => $playlistsPromotores,
             'actives' => $actives,
-            'count' => $count
+            'count' => $count,
+            'playlitsFinal' => $playlitsFinal
         ]);
         }else{
             return view('playlist.screen', [
@@ -127,7 +164,8 @@ class ContentController extends Controller
                 'sectionSchedules' => $sectionSchedules,
                 'schedulesUsuario' => $schedules,
                 'actives' => $actives,
-                'count' => $count
+                'count' => $count,
+                'schedulesUserBlock'=>$schedulesUserBlock
             ]);
         }
     }

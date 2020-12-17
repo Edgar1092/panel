@@ -46,7 +46,7 @@
                 <br/>
                 <button type="submit" class="btn btn-outline-success btn-sm" name="action" value="update" >{{ __('Update Schedule') }}</button>
                 <br/>
-                <button type="submit" class="btn btn-outline-danger btn-sm mt-2" name="action" value="clear" >{{ __('Clear Schedule') }}</button>
+                <button disabled="{{$schedulesUserBlock > 0 ? true : false}}" type="submit" class="btn btn-outline-danger btn-sm mt-2" name="action" value="clear" >{{ __('Clear Schedule') }}</button>
             </div>
             <div class="col-md-9">
                 <div class="row text-center">
