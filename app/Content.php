@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Content extends Model
 {
     protected $fillable = [
-        'name', 'type', 'mime', 'size', 'offline'
+        'name', 'type', 'mime', 'size', 'offline','user_id'
     ];
 
     protected $hidden = [

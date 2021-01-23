@@ -14,6 +14,10 @@ use Carbon\Carbon;
 use App\Rules\PhoneNumber;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Schedule;
+use App\ScheduleUser;
+use App\SchedulePlaylist;
+use App\UserScreens;
 
 class UserController extends Controller
 {
@@ -196,27 +200,124 @@ class UserController extends Controller
       public function getScreens(Request $request)
     {
         $user = Auth::user();
+        $horaActual = date("H:i:s");
+        $hora = date("H");
+        $min = date("i");
         if($user->is_admin){
             $u = User::find($request->uuid);
             $screens = $u->screens()->orderBy('created_at', 'asc')->get();
+            if($u->is_promotor){
+              $screensPromotor = User::join('user_screens', 'user_screens.user_id', '=', 'users.id')
+              ->join('screens', 'user_screens.screen_id', '=', 'screens.id')
+              ->where('users.id',$request->uuid )
+              ->select('screens.*')
+              ->orderBy('screens.created_at', 'asc')
+              ->get();
+            }else{
+                $screensPromotor = [];
+            }
+            
             // $screens = Screen::with('user')->orderBy('created_at', 'asc')->get();
             $usuarios = User::where('is_active',1)->orderBy('created_at', 'asc')->get();
             $screensOn = $u->screens()->where('offline',0)->count();
             $screensOff = $u->screens()->where('offline',1)->count();
+            if($min>=30){
+                $init = $hora.":30:00";
+                $ends = $hora.":59:00";
+            }else{
+                $init = $hora.":00:00";
+                $ends = $hora.":29:00";
+            }
+            $schActivo = Schedule::where('init_at',$init)->where('ends_at',$ends)->first();
+            foreach ($screens as $key => $value) {
+                $tienePlaylist = SchedulePlaylist::where('screen_id',$value->id)
+                ->where('schedule_id',$schActivo->id)
+                ->first();
+                if($tienePlaylist){
+                    $pl = Playlist::find($tienePlaylist->playlist_id);
+                    $screens[$key]['reproduce'] = 1;
+                    $screens[$key]['playlist_reproduce'] = $pl;
+                }else{
+                    $screens[$key]['reproduce'] = 0;
+                    $screens[$key]['playlist_reproduce'] = array();
+                }
+            }
+            foreach ($screensPromotor as $key => $value) {
+                $tienePlaylist = SchedulePlaylist::where('screen_id',$value->id)
+                ->where('schedule_id',$schActivo->id)
+                ->first();
+                if($tienePlaylist){
+                    $pl = Playlist::find($tienePlaylist->playlist_id);
+                    $screensPromotor[$key]['reproduce'] = 1;
+                    $screensPromotor[$key]['playlist_reproduce'] = $pl;
+                }else{
+                    $screensPromotor[$key]['reproduce'] = 0;
+                    $screensPromotor[$key]['playlist_reproduce'] = array();
+                }
+            }
+            // print_r($screensPromotor->toArray());
+            // print_r($screens->toArray());
             return view('admin.screens', [
                 'user' => $user,
                 'userSelected'=>$u,
                 'screens' => $screens,
+                'screensPromotor' => $screensPromotor,
                 'users' => $usuarios,
                 'screensOn' =>$screensOn,
                 'screensOff' => $screensOff
             ]);
         }else{
             $screens = $user->screens()->orderBy('created_at', 'asc')->get();
+            if($user->is_promotor){
+                $screensPromotor = User::join('user_screens', 'user_screens.user_id', '=', 'users.id')
+                ->join('screens', 'user_screens.screen_id', '=', 'screens.id')
+                ->where('users.id',$user->id )
+                ->select('screens.*')
+                ->orderBy('screens.created_at', 'asc')
+                ->get();
+              }else{
+                  $screensPromotor = [];
+              }
             $usuarios = [];
+
+            if($min>=30){
+                $init = $hora.":30:00";
+                $ends = $hora.":59:00";
+            }else{
+                $init = $hora.":00:00";
+                $ends = $hora.":29:00";
+            }
+            $schActivo = Schedule::where('init_at',$init)->where('ends_at',$ends)->first();
+            foreach ($screens as $key => $value) {
+                $tienePlaylist = SchedulePlaylist::where('screen_id',$value->id)
+                ->where('schedule_id',$schActivo->id)
+                ->first();
+                if($tienePlaylist){
+                    $pl = Playlist::find($tienePlaylist->playlist_id);
+                    $screens[$key]['reproduce'] = 1;
+                    $screens[$key]['playlist_reproduce'] = $pl;
+                }else{
+                    $screens[$key]['reproduce'] = 0;
+                    $screens[$key]['playlist_reproduce'] = array();
+                }
+            }
+            foreach ($screensPromotor as $key => $value) {
+                $tienePlaylist = SchedulePlaylist::where('screen_id',$value->id)
+                ->where('schedule_id',$schActivo->id)
+                ->first();
+                if($tienePlaylist){
+                    $pl = Playlist::find($tienePlaylist->playlist_id);
+                    $screensPromotor[$key]['reproduce'] = 1;
+                    $screensPromotor[$key]['playlist_reproduce'] = $pl;
+                }else{
+                    $screensPromotor[$key]['reproduce'] = 0;
+                    $screensPromotor[$key]['playlist_reproduce'] = array();
+                }
+            }
             return view('screens', [
                 'user' => $user,
                 'screens' => $screens,
+                'screensPromotor' => $screensPromotor,
                 'users' => $usuarios
             ]);
         }
@@ -352,6 +453,39 @@ class UserController extends Controller
         
 
         return back()->with('success', "You have successfully added the screen: $request->name.");
+    }
+
+    public function assignScreens(Request $request)
+    {
+        $request->validate([
+            'uuid' => 'required|string|min:15|max:36',
+        ]);
+
+        $user = Auth::user();
+        $screen_u = Screen::where("uuid",$request->uuid)->where("user_id",$request->userSelected)->count();
+        if($screen_u == 0){
+            $screen = Screen::where("uuid",$request->uuid)->first();
+            if($screen){
+                $screen_us = UserScreens::where("screen_id",$screen->id)->where("user_id",$request->userSelected)->count();
+                if($screen_us == 0){
+                    
+                        $user_screens = UserScreens::create([
+                            'user_id' => $request->userSelected,
+                            'screen_id' => $screen->id
+                        ]);
+                    
+                }else{
+                    return back()->with('success', "La pantalla ya se encuentra asignada a este usuario");
+                }
+            }else{
+                return back()->with('error', "La pantalla que intenta asignar no existe");
+            }
+            
+        }else{
+            return back()->with('success', "La pantalla ya se encuentra asignada a este usuario");
+        }
+        
+        return back()->with('success', "La pantalla fue asignada correctamente");
     }
 
     public function delScreens(Request $request)

@@ -25,7 +25,7 @@
     <section class="content">
       <div class="container-fluid">
       
-
+        {{date('d/m/Y H:i')}}
       </div><!-- /.container-fluid -->
     </section>
     <!-- /.content -->

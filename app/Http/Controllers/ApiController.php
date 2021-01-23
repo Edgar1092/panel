@@ -72,10 +72,14 @@ class ApiController extends Controller
 
         $current_time = strtotime(date("h:i:s"));
 
+        $fechados=date("h:i:s");
+
         //$screen = \App\Screen::where('uuid', '=', $request->uuid)->where('user_id', $user->id)->first();
         $screen = $user->screens()->firstWhere('uuid', $request->uuid);
         $relation = \App\SchedulePlaylist::where('screen_id', '=', $screen->id)->get();
 
+
+// var_dump('fechados',date("h:i:s"));
         foreach ($relation as $key => $value) {
             $schedule = $value->schedule()->first();
 
@@ -84,6 +88,8 @@ class ApiController extends Controller
 
             if ($current_time >= $start && $current_time <= $end) {
                 $playlist = $value->playlist()->first();
+
+                 // var_dump('tiempo',$playlist);
                 break;
             }
         }
@@ -200,6 +206,56 @@ if (Storage::disk('public')->exists($user->id . '/content/' . $item->name . '.x2
         return response()->json([
             'date' => $current_time
         ]);
+    }
+
+
+     public function loginCode(Request $request){
+
+
+
+        // $credentials = request(['email', 'password']);
+        // // $credentials = ['email'=>$request->email, 'password'=>$request->password, 'is_active'=> 1];
+        
+        // if(!Auth::attempt($credentials)) {
+        //     return response()->json([
+        //         'message' => 'Unauthorized'
+        //     ], 401);
+        // }
+
+        // $user = $request->user();
+
+        return "hola";
+  
+
+        if(Screen::where('uuid',$request->uuid)->exists){
+
+            $consulta=Screen::where('uuid',$request->uuid)->first();
+            $user=User::find($consulta->user_id);
+        
+            $tokenResult = $user->createToken('Personal Access Token');
+            $token = $tokenResult->token;
+            
+            if ($request->remember_me) {
+                $token->expires_at = Carbon::now()->addWeeks(1);
+            }
+
+            $token->save();
+            
+            return response()->json([
+                'access_token' => $tokenResult->accessToken,
+                'token_type' => 'Bearer',
+                'user' => $user,
+                'expires_at' => Carbon::parse(
+                    $tokenResult->token->expires_at
+                )->toDateTimeString()
+            ]);
+        }else{
+            return'culo';
+            //    return response()->json([
+            //     'message' => 'Unauthorized'
+            // ], 401);
+        }
+
     }
 }
 

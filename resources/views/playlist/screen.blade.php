@@ -28,7 +28,9 @@
     </ul>
 </div>
 @endif
-
+@php 
+$scheduleLock =false;
+@endphp
 <div class="container-fluid">
     <form action="{{ route('set_playlist_screen', ['uuid' => $screen->uuid]) }}" method="post">
         @csrf
@@ -71,6 +73,9 @@
                         <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
                             <div class="card-body">
                             @foreach ($sectionSchedules['morning'] as $schedule)
+                            @php 
+                            $scheduleLock =false;
+                            @endphp
                                 <div class="row text-center">
                                     <div class="col my-2">
                                         {{ $schedule->init_at }} - {{ $schedule->ends_at }}
@@ -79,9 +84,14 @@
                                         <select class="form-control" name="playlist[{{$schedule->id}}]"  @foreach ($schedulesUsuario as $value)
                                                                         @if($value->schedule_id == $schedule->id && $value->locked == 1)
                                                                             disabled
-                                                                         
+                                                                         @php
+                                                                          $scheduleLock = true;
+                                                                         @endphp
                                                                         @endif
                                                                     @endforeach>
+                                            @if($scheduleLock == true)
+                                            <option value="">Hora bloqueada</option>
+                                            @else
                                             <option value="none">{{ __('None') }}</option>
                                             @forelse ($playlists as $item)
                                             <option value="{{ $item->id }}"
@@ -97,6 +107,7 @@
                                             @empty
                                             <option disabled>{{ __('You have no playlists yet') }}...</option>
                                             @endforelse
+                                            @endif
                                         </select>
                                     </div>
                                 </div>
@@ -115,6 +126,9 @@
                         <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
                             <div class="card-body">
                             @foreach ($sectionSchedules['afternoon'] as $schedule)
+                            @php 
+                            $scheduleLock =false;
+                            @endphp
                                 <div class="row text-center">
                                     <div class="col my-2">
                                         {{ $schedule->init_at }} - {{ $schedule->ends_at }}
@@ -123,9 +137,14 @@
                                         <select class="form-control" name="playlist[{{$schedule->id}}]" @foreach ($schedulesUsuario as $value)
                                                                         @if($value->schedule_id == $schedule->id && $value->locked == 1)
                                                                             disabled
-                                                                         
+                                                                            @php
+                                                                          $scheduleLock = true;
+                                                                         @endphp
                                                                         @endif
                                                                     @endforeach>
+                                            @if($scheduleLock == true)
+                                            <option value="">Hora bloqueada</option>
+                                            @else
                                             <option value="none">{{ __('None') }}</option>
                                             @forelse ($playlists as $item)
                                             <option value="{{ $item->id }}"
@@ -138,6 +157,7 @@
                                             @empty
                                             <option disabled>{{ __('You have no playlists yet') }}...</option>
                                             @endforelse
+                                            @endif
                                         </select>
                                     </div>
                                 </div>
@@ -158,7 +178,9 @@
                             <div class="card-body">
                           
                             @foreach ($sectionSchedules['night'] as $schedule)
-                      
+                            @php 
+                            $scheduleLock =false;
+                            @endphp
                                 <div class="row text-center">
                                     <div class="col my-2">
                                         {{ $schedule->init_at }} - {{ $schedule->ends_at }}
@@ -168,9 +190,14 @@
                                         @foreach ($schedulesUsuario as $value)
                                                                         @if($value->schedule_id == $schedule->id && $value->locked == 1)
                                                                             disabled
-                                                                         
+                                                                            @php
+                                                                          $scheduleLock = true;
+                                                                         @endphp
                                                                         @endif
                                                                     @endforeach>
+                                            @if($scheduleLock == true)
+                                            <option value="">Hora bloqueada</option>
+                                            @else
                                             <option value="none">{{ __('None') }}</option>
                                             @forelse ($playlists as $item)
                                             <option value="{{ $item->id }}"
@@ -183,6 +210,7 @@
                                             @empty
                                             <option disabled>{{ __('You have no playlists yet') }}...</option>
                                             @endforelse
+                                            @endif
                                         </select>
                                     </div>
                                 </div>

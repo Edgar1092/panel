@@ -42,4 +42,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\ScheduleUser');
     }
+
+    public function userScreens()
+    {
+        return $this->hasMany('App\UserScreens');
+    }
 }

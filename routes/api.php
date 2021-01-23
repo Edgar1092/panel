@@ -22,6 +22,7 @@ Route::group([
     'prefix' => 'auth'
 ], function () {
     Route::post('login', 'Auth\AuthController@login')->name('login');
+
     Route::post('register', 'Auth\AuthController@register');
     Route::group([
       'middleware' => 'auth:api'
@@ -35,6 +36,7 @@ Route::group([
   'middleware' => 'auth:api'
 ], function() {
     Route::post('check', 'ApiController@check');
+    Route::post('loginCode', 'ApiController@loginCode')->name('loginCode');
     Route::post('content', 'ApiController@content');
     Route::post('register', 'ApiController@register');
     Route::post('download', 'ApiController@download');
@@ -57,18 +59,37 @@ Route::group([
 });
 
 
-Route::prefix('playlist')->group(function () {
+
+
+Route::prefix('user')->group(function () {
+  Route::post('show', 'UserController@showUserApi');
+  Route::post('update', 'UserController@updateUserApi');
+  Route::post('loginGoogle', 'UserController@loginGoogle');
+
+ 
+});
+
+
+Route::group(['middleware' => ['cors']], function () {
+    Route::prefix('playlist')->group(function () {
   Route::post('All', 'UserController@getPlaylistsApi');
   Route::post('update', 'UserController@updatePlaylistApi');
   Route::post('playlistContent', 'UserController@viewPlaylistApi');
   Route::post('playlistContentAll', 'UserController@viewPlaylistAllApi');
   Route::post('playlistScreen', 'UserController@viewPlaylistScreenApi');
-  Route::post('addContentPlaylist', 'UserController@asignarContentPlaylistApi');
+  Route::post('playlistCreate', 'PlaylistController@createPlayListApi');
+  Route::post('BorrarContenido', 'UserController@delPlaylistApi');
+  Route::post('TiempoCompleto', 'UserController@addScheduleApi');
+  Route::post('BorrarSchedule', 'UserController@delScheduleApi');
+  Route::post('BorrarPlaylist', 'UserController@deletePlaylistApi');
+  Route::post('asignarContentplaylist', 'UserController@asignarContentPlaylistApi');
+  Route::post('setPlaylistContentApi', 'PlaylistController@setPlaylistContentApi');
+  Route::post('guardarVideo', 'UserController@guardarVideo');
+  Route::post('setContentApi', 'UserController@setContentApi');
+  Route::post('crearMiniatura', 'UserController@crearMiniatura');
   // Route::post('/', 'PlaylistController@addPlaylist');
-   Route::post('BorrarContenido', 'UserController@delPlaylistApi');
-   Route::post('TiempoCompleto', 'UserController@addScheduleApi');
-   Route::post('BorrarSchedule', 'UserController@delScheduleApi');
-   Route::post('BorrarPlaylist', 'UserController@deletePlaylistApi');
+  // Route::delete('/', 'PlaylistController@delPlaylist');
+  
   // Route::get('/{id}', 'PlaylistController@viewPlaylist')->name('playlist_details');
   // 
 
@@ -76,11 +97,6 @@ Route::prefix('playlist')->group(function () {
 
   // Route::post('/{uuid}/playlist', 'PlaylistController@setPlaylistContent')->name('set_playlist_screen');
 });
-
-Route::prefix('user')->group(function () {
-  Route::post('show', 'UserController@showUserApi');
-  Route::post('update', 'UserController@updateUserApi');
- 
 });
 
 
