@@ -48,14 +48,21 @@ class DesactivarUsuario extends Command
 
             DB::beginTransaction(); // Iniciar transaccion de la base de datos
 
-            $users = User::where('is_active',1)->get();
+            $users = User::where('is_active',1)->where('is_admin',0)->get();
             $fecha_actual = date("Y-m-d");
             // var_dump($codigos);
                 foreach($users as $user){
-                    
-                        $u =  User::find($user->id);
-                        $u->is_active = 0;
-                        $u->save();
+                    // echo "aqui van fechas".$user->created_at."<br>";
+                    $fechaLimite=date("d-m-Y",strtotime($user->created_at."+ 15 days")); 
+            if($fecha_actual>$fechaLimite){
+                $u =  User::find($user->id);
+                $u->is_active = 0;
+                $u->save();
+            }
+
+        
+
+
                     
                 }
                 // echo $fecha_actual.' ';
