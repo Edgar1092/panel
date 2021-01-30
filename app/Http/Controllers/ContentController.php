@@ -90,7 +90,7 @@ class ContentController extends Controller
             'afternoon' => array(),
             'night' => array()
         ];
-
+        // print_r(count($schedules2));
         foreach ($schedules as $schedule) {
             $item = $schedule->schedule()->first();
 
@@ -138,7 +138,7 @@ class ContentController extends Controller
             foreach ($playlistsPromotores as $key => $value) {
                 array_push($playlitsFinal,$value);
             }
-            // print_r($playlistsFinal);
+            // print_r(count($sectionSchedules));
         return view('admin.playlist.screen', [
             'user' => $user,
             'userSelected' => $userSelected,

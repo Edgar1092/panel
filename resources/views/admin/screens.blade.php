@@ -46,6 +46,13 @@
                     </div>
                     @endif
 
+                    @if ($message = Session::get('error'))
+                    <div class="alert alert-{{ Session::get('color') ?? 'danger' }} alert-block">
+                        <button type="button" class="close" data-dismiss="alert">×</button>
+                        <strong>@lang($message)</strong>
+                    </div>
+                    @endif
+
                     @if (count($errors) > 0)
                     <div class="alert alert-danger">
                         <strong>{{ __('Whoops') }}!</strong> {{ __('There were some problems adding new screen') }}.<br><br>
@@ -63,7 +70,9 @@
                         <h3>{{ __('Screens') }} <small style="font-size:50%;"><i>{{ count($screens) }} {{ __('out of') }} {{ count($screens) }}</i></small>
                         </h3>
                         <label> <i class="fas fa-circle text-success"></i> {{$screensOn}} Online</label><br>
-                        <label> <i class="fas fa-circle text-danger"></i> {{$screensOff}} Offline</label>
+                        <label> <i class="fas fa-circle text-danger"></i> {{$screensOff}} Offline</label><br>
+                        <h3>Propias</h3>
+
                         @foreach ($screens as $screen)
                         @if($screen->offline === 0)
                         <div class="row my-2 select-screen"
@@ -71,6 +80,7 @@
                             data-name="{{ $screen->name }}"
                             data-lat="{{ $screen->lat }}"
                             data-lng="{{ $screen->lng }}"
+                            data-promotor="0"
                             data-href="{{ route('screen_content', ['uuid' => $screen->uuid]) }}">
                             <div class="col-md-12 py-3">
                                 <button type="button" class="close text-danger"
@@ -89,6 +99,7 @@
                             data-name="{{ $screen->name }}"
                             data-lat="{{ $screen->lat }}"
                             data-lng="{{ $screen->lng }}"
+                            data-promotor="0"
                             data-href="{{ route('screen_content', ['uuid' => $screen->uuid]) }}">
                             <div class="col-md-12 py-3">
                                 <button type="button" class="close text-danger"
@@ -103,6 +114,38 @@
                         </div>
                         @endif
                         @endforeach
+                        @if($userSelected->is_promotor)
+                        <h3>Asignadas</h3>
+                        @foreach ($screensPromotor as $screen)
+                        @if($screen->offline === 0)
+                        <div class="row my-2 select-screen"
+                            data-uuid="{{ $screen->uuid }}"
+                            data-name="{{ $screen->name }}"
+                            data-lat="{{ $screen->lat }}"
+                            data-lng="{{ $screen->lng }}"
+                            data-promotor="1"
+                            data-href="{{ route('screen_content', ['uuid' => $screen->uuid]) }}">
+                            <div class="col-md-12 py-3">
+                                {{ $loop->iteration }}. {{ $screen->name }} <br />
+                                <small>UID: {{ $screen->uuid }}</small>
+                            </div>
+                        </div>
+                        @else
+                        <div class="row my-2 select-screen select-screen-off"
+                            data-uuid="{{ $screen->uuid }}"
+                            data-name="{{ $screen->name }}"
+                            data-lat="{{ $screen->lat }}"
+                            data-lng="{{ $screen->lng }}"
+                            data-promotor="1"
+                            data-href="{{ route('screen_content', ['uuid' => $screen->uuid]) }}">
+                            <div class="col-md-12 py-3">
+                                {{ $loop->iteration }}. {{ $screen->name }} <br />
+                                <small>UID: {{ $screen->uuid }}</small>
+                            </div>
+                        </div>
+                        @endif
+                        @endforeach
+                        @endif
                     </div>
                     <div class="col-md-9 pl-4">
                         <div class="row">
@@ -118,6 +161,10 @@
                                 {{--<a class="btn btn-outline-secondary" href="#!" role="button">{{ __('Add Group') }}</a>--}}
                                 <a class="btn btn-outline-secondary" href="#!" role="button" data-toggle="modal"
                                     data-target="#screenModal">{{ __('Add Screen') }}</a> 
+                                @if($userSelected->is_promotor)
+                                <a class="btn btn-outline-secondary" href="#!" role="button" data-toggle="modal"
+                                    data-target="#assignScreenModal">Asignar pantalla</a> 
+                                @endif
                             </div>
                         </div>
                         @foreach ($screens as $screen)
@@ -139,6 +186,12 @@
                                 {{ __('Brand') }} / {{ __('Model') }}: {{ $screen->brand }}<br />
                                 {{ __('Manufacturer') }}: {{ $screen->manufacturer }}<br />
                                 {{ __('Add Date') }}: {{ $screen->created_at }}</p>
+                                <p>
+                                {{ __('Esta reproduciendo') }}: {{ $screen->reproduce ? 'Si' : 'No' }}<br>
+                                @if($screen->reproduce)
+                                {{ __('Playlist que se reproduce') }}: {{ $screen->playlist_reproduce->name }}
+                                @endif
+                                </p>
                                 @if($user->is_admin)
                                 <p>
                                 {{ __('Name') }}: {{ $screen->user->first_name }} {{ $screen->user->last_name }}<br />
@@ -162,6 +215,43 @@
                             </div>
                         </form>
                         @endforeach
+                        @if($userSelected->is_promotor)
+                        @foreach ($screensPromotor as $screen)
+                        <form class="row screen-details d-none" id="s-{{ $screen->uuid }}"
+                            action="{{ route('screens', ['uuid' => $screen->uuid]) }}" method="post">
+                            @csrf
+                            @method('PUT')
+                            <input type="hidden" name="uuid" value="{{ $screen->uuid }}" />
+                            <div class="col text-left">
+                                <p class="font-weight-bolder text-break">{{ $screen->name }}<br/>
+                                </p>
+                                <p>{{ __('OS') }}: {{ $screen->os }}<br />
+                                {{ __('Version') }}: {{ $screen->version }}<br />
+                                {{ __('Brand') }} / {{ __('Model') }}: {{ $screen->brand }}<br />
+                                {{ __('Manufacturer') }}: {{ $screen->manufacturer }}<br />
+                                {{ __('Add Date') }}: {{ $screen->created_at }}</p>
+                                <p>
+                                {{ __('Esta reproduciendo') }}: {{ $screen->reproduce ? 'Si' : 'No' }}<br>
+                                @if($screen->reproduce)
+                                {{ __('Playlist que se reproduce') }}: {{ $screen->playlist_reproduce->name }}
+                                @endif
+                                </p>
+                                <p>{{ __('Content Type') }}:
+                                @if($screen->offline === 0)
+                                <b><span class="text-success">{{ __('Online') }}</span></b></p>
+                                <!-- <p><button type="submit" class="btn btn-outline-danger btn-sm">{{ __('Change Online') }}</button></p>
+                                <input type="hidden" name="offline" value="1" /> -->
+                                @else
+                                <b><span class="text-danger">{{ __('Offline') }}</span></b></p>
+                                <!-- <p><button type="submit" class="btn btn-outline-success btn-sm">{{ __('Change Offline') }}</button></p>
+                                <p><button type="submit" name="force" value="1" class="btn btn-outline-info btn-sm">{{ __('Force Download') }}</button></p>
+                                <input type="hidden" name="offline" value="0" /> -->
+                                @endif
+                                <!-- <a class="btn btn-outline-secondary btn-sm" href="{{ route('screen_content', ['uuid' => $screen->uuid]) }}" role="button">{{ __('Edit Playlist') }}</a> -->
+                            </div>
+                        </form>
+                        @endforeach
+                        @endif
                     </div>
                 </div>
                   </div>
@@ -295,6 +385,33 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="assignScreenModal" tabindex="-1" role="dialog" aria-labelledby="screenModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form action="{{ route('screens_assign') }}" method="POST" id="assignScreenForm">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title" id="screenModalLabel">Asignar pantalla</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="uuid">{{ __('UUID') }}</label>
+                        <input type="hidden" name="userSelected" id="userSelected" value="{{ $userSelected->id }}">
+                        <input type="text" class="form-control" name="uuid" id="uuid" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ __('Close') }}</button>
+                    <button type="submit" class="btn btn-success">Asignar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 @section('scripts')
 <script src="{{ asset('js/app.js') }}"></script>
@@ -305,8 +422,8 @@
     const mapViewModal = new mapboxgl.Map({
         container: 'viewScreenModalLocation',
         style: 'mapbox://styles/mapbox/streets-v11',
-        center: [0, 0],
-        zoom: 12
+        center: [40.463667, -3.74922],
+        zoom: 2
     });
 
     const markerView = new mapboxgl.Marker()
@@ -333,23 +450,27 @@
     $('.select-screen').click(function (e) {
         e.preventDefault();
         $screen = $(this);
-        console.log("ES AQ");
+
         $('.select-screen').removeClass('bg-success text-white');
         $screen.addClass('bg-success text-white');
 
         $('.screen-details').addClass('d-none');
-        
+        promotor = $screen.data('promotor')
         selectedScreen = {
             uuid: $screen.data('uuid'),
             name: $screen.data('name'),
-            lat: $screen.data('lat'),
-            lng: $screen.data('lng')
+            lat: $screen.data('lng'),
+            lng: $screen.data('lat')
         };
+
+
 
         markerView.setLngLat([
             selectedScreen.lng,
             selectedScreen.lat
         ]);
+
+          console.log('aqui estoy',promotor);
 
         mapViewModal.flyTo({
             essential: true,
@@ -364,6 +485,9 @@
 
         $('#viewSreenContent').attr('href', contentUrl + selectedScreen.uuid);
         $('#s-' + selectedScreen.uuid).removeClass('d-none');
+        if(promotor == 1){
+            $('#viewSreenContent').addClass('d-none');
+        }
     }).dblclick(function (e) {
         e.preventDefault();
         window.location.href = $(this).data("href");

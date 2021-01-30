@@ -9,6 +9,7 @@ use App\Screen;
 use App\SchedulePlaylist;
 use App\ScheduleUser;
 use App\User;
+use Illuminate\Support\Facades\Storage;
 
 class PlaylistController extends Controller
 {
@@ -306,5 +307,174 @@ class PlaylistController extends Controller
         // }
 
          return back()->with('success', 'Schedule locked updated on this screen!');
+    }
+
+    public function createPlayListApi(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|min:2|max:225',
+        ]);
+
+        // $userLog = Auth::user();
+            
+        // if($userLog->is_admin){
+            $user = User::find($request->user);
+        // }else{
+            // $user = Auth::user();
+        // }
+
+        $playlist = new \App\Playlist([
+            'name' => $request->name,
+            'interval' => $request->interval ?? 10
+        ]);
+
+        $user->playlists()->save($playlist);
+
+        if($request->imagenes){
+            $files = $request->imagenes;
+
+            //$allowedfileExtension=['pdf','jpg','png','docx'];
+
+            $array = [];
+
+            foreach ($files as $file) {
+                if($file['type'] !="video"){
+                    $filename = time().".png";
+                    $extension = "png"; 
+                    $mime= "image/png";
+                }else{
+                    $filename = time().".mp4";
+                    $extension = "mp4"; 
+                    $mime= "video/mp4";
+                }
+                
+
+                //$check = in_array($extension, $allowedfileExtension);
+
+                if (!\App\Content::where('name', '=', $filename)->where('user_id', $user->id)->exists()) {
+                    // $file->storeAs($user->id . '/content', $filename);
+                    $resized_file = base64_decode($file["base64"]);
+                    Storage::disk('local')->put('\\public\\'.$user->id.'\\content\\'.$filename, $resized_file);
+                    if (trim($file['type']) =="video")
+                          prepareVideo($user->id . '/content/' . $filename);
+
+                    $array[] = new \App\Content([
+                        'name' => $filename,
+                        'type' => $extension,
+                        'mime' => $mime,
+                        'size' => 0
+                    ]);
+                } else {
+                    $array[] = \App\Content::where('name', $filename)
+                        ->where('type', $extension)
+                        ->where('mime', $mime)
+                        ->where('size', 0)
+                        ->first();
+                }
+            }
+
+            //$content = new \App\Content($array);
+            $user->contents()->saveMany($array);
+
+            if (is_numeric($playlist->id)) {
+                $arrayPlaylist = [];
+                $playlist = $user->playlists()->firstWhere('id', $playlist->id);
+
+                foreach ($array as $content) {
+                    if (!\App\PlaylistContent::where('content_id', $content->id)->where('playlist_id', $playlist->id)->exists()) {
+                        $arrayPlaylist[] =  new \App\PlaylistContent([
+                            'type' => $content->type,
+                            'content_id' => $content->id,
+                            'start_at' => 0,
+                            'end_at' => 0
+                        ]);
+                    }
+                }
+                
+                $playlist->playlistContent()->saveMany($arrayPlaylist);
+            }
+        }
+        return response()->json([
+            'message'=> 'Successfully added',
+            'playlist'=>$playlist,
+            'user'=>$user,
+
+            ]);
+        // return back()->with('success', "You have successfully added the playlist: $request->name.");
+    }
+
+    public function setPlaylistContentApi(Request $request)
+    {
+        $array = [];
+        $user = User::find($request->idUser);
+
+        // if($user->is_admin){
+        //     $scrn = Screen::where('uuid', $request->uuid)->first();
+        //     $userSelected= User::find($scrn->user_id);
+        //     $screen = $userSelected->screens()->firstWhere('uuid', $request->uuid);
+        //     $schedulesUser = ScheduleUser::where('user_id', $userSelected->id)->where('locked',1)->get();
+        //     $schedulesPlaylistScreen = SchedulePlaylist::where('screen_id',$scrn->id)->get();
+        //     $screen->schedules()->delete();
+            
+        // }else{
+            $screen = $user->screens()->firstWhere('uuid', $request->uuid);
+            $schedulesPlaylistScreen = SchedulePlaylist::where('screen_id',$screen->id)->get();
+            $schedulesUser = ScheduleUser::where('user_id', $user->id)->where('locked',1)->get();
+            $screen->schedules()->delete();  
+        // }
+       
+
+        if ($request->action === "update") {
+            if ($request->idPlaylist !== 'none') {
+                $schedules = \App\Schedule::all();
+                foreach($schedules as $schedule) {
+                    $array[] = new \App\SchedulePlaylist([
+                        'fulltime' => false,
+                        'screen_id' => $screen->id,
+                        'playlist_id' => $request->fulltimePlaylist,
+                        'schedule_id' => $schedule->id,
+                    ]);
+                }
+            } else {
+                foreach($request->playlist as $key => $value) {
+                    if ($value['playlist_id'] !== "none") {
+                        $array[] = new \App\SchedulePlaylist([
+                            'fulltime' => false,
+                            'screen_id' => $screen->id,
+                            'playlist_id' => $value['playlist_id'],
+                            'schedule_id' => $value['schedule_id'],
+                        ]);
+                    }
+                }
+            }
+            
+            $screen->schedules()->saveMany($array);
+
+            if(count($schedulesUser)>0){
+                foreach ($schedulesUser as $key => $value) {
+                    $schu = ScheduleUser::where('user_id', $value->user_id)->where('schedule_id',$value->schedule_id)->first();
+                    $schu->locked=1;
+                    $schu->save();
+                    if(!$user->is_admin){
+                        foreach ($schedulesPlaylistScreen as $key1 => $value1) {
+                            if($value->schedule_id == $value1->schedule_id){
+                                $schedplay = SchedulePlaylist::where('schedule_id',$value1->schedule_id)
+                                ->where('screen_id',$value1->screen_id)->first();
+                                $schedplay->playlist_id = $value1->playlist_id;
+                                $schedplay->save();
+                            }
+                        }
+                    }
+                }  
+            }
+            
+        }
+
+        return response()->json([
+            'message'=> 'Successfully added',
+            'screen'=>$screen,
+            'user'=>$user,
+
+            ]);
     }
 }

@@ -113,6 +113,7 @@
                            
                                     <div id="accordion">
                                         @if (count($schedules) > 0)
+                                        
                                         <div class="card">
                                             <div class="card-header text-center" id="headingOne">
                                                 <h5 class="mb-0">

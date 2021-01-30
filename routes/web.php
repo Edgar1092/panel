@@ -31,6 +31,7 @@ Route::prefix('screens')->group(function () {
     Route::put('/', 'UserController@uptScreens');
     Route::post('/', 'UserController@addScreens');
     Route::delete('/', 'UserController@delScreens');
+    Route::post('/assign', 'UserController@assignScreens')->name('screens_assign');
 });
 Route::prefix('users')->group(function () {
     Route::get('/', 'UserController@getUsers')->name('users');

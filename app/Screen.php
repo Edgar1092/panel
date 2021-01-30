@@ -46,4 +46,9 @@ class Screen extends Model
     {
         return $this->hasMany('App\SchedulePlaylist');
     }
+
+    public function userScreens()
+    {
+        return $this->hasMany('App\UserScreens');
+    }
 }
