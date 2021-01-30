@@ -802,14 +802,15 @@ class UserController extends Controller
     {
         $user = User::find($request->idUser);
 
-        $playlist = $user->playlists()->firstWhere('id', $request->id);
+        // $playlist = $user->playlists()->firstWhere('id', $request->id);
         $content = Content::where('user_id',$request->idUser)->get();
+        // $content = $playlist->playlistContent()->get();
 
         $playlistContent = [];
         $count = [ 'images' => 0, 'videos' => 0 ];
 
         foreach ($content as $item) {
-            $item = $item->content()->first();
+            // $item = $item->content()->first();
             $playlistContent[] = $item;
 
             switch ($item->type) {
@@ -821,7 +822,7 @@ class UserController extends Controller
         return response()->json([
         
             'user' => $user,
-            'playlist' => $playlist,
+            // 'playlist' => $playlist,
             'content' => $playlistContent,
             'count' => $count
 
@@ -860,8 +861,8 @@ class UserController extends Controller
 
         $user = User::find($request->idUser);
         $count = [ 'images' => 0, 'videos' => 0 ];
-if($request->uuid!=''){
-        $screen = $user->screens()->firstWhere('uuid', $request->uuid);
+if($request->id!=''){
+        $screen = $user->screens()->firstWhere('uuid', $request->id);
         $actives = $screen->schedules()->get();
         $content = $user->contents()->get();
         $playlists = $user->playlists()->get();
@@ -930,7 +931,7 @@ if($request->uuid!=''){
         //     'actives' => $actives,
         //     'count' => $count
         // ]);
-if($request->uuid!=''){
+if($request->id!=''){
     return response()->json([
         'user' => $user,
       'screen' => $screen,
@@ -984,7 +985,7 @@ if($request->uuid!=''){
     public function addScheduleApi(Request $request)
     {
         $array = [];
-        $user = User::find($request->idUser);
+        $user = User::find($request->idUsuario);
 
         $screen = $user->screens()->firstWhere('uuid', $request->id);
         $screen->schedules()->delete();
@@ -1094,16 +1095,18 @@ if($request->uuid!=''){
 
         if ($request->hasFile('file')) {
 
-            $user = Auth::user();
+            $user = User::find($request->idUser);
             $file = $request->file('file');
 
             //$allowedfileExtension=['pdf','jpg','png','docx'];
 
             $array ;
 
-                $filename = $file->getClientOriginalName();
-                $extension = strtolower($file->getClientOriginalExtension());
-
+                
+                $ex = strtolower($file->getClientOriginalExtension());
+                $ext = explode("?",$ex);
+                $extension = $ext[0];
+                $filename = time().".".$extension;
                 //$check = in_array($extension, $allowedfileExtension);
 
                 if (!\App\Content::where('name', '=', $filename)->where('user_id', $user->id)->exists()) {
