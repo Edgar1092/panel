@@ -537,9 +537,9 @@ class UserController extends Controller
     {
         $user=User::where('id',$request->id)->first();
         if($user->is_admin){
-            $screens = Screen::where('user_id',$request->id)->orderBy('created_at', 'asc')->get();
+            $screens = Screen::orderBy('created_at', 'asc')->get();    
         }else{
-            $screens = Screen::orderBy('created_at', 'asc')->get();          
+            $screens = Screen::where('user_id',$request->id)->orderBy('created_at', 'asc')->get();       
         }
 
         return response()->json([
@@ -761,7 +761,7 @@ class UserController extends Controller
         $user->save();
 
         return response()->json([
-        
+            'usuario'=>$user,
             'msj' => "Update success",
 
         ]);
@@ -1112,8 +1112,8 @@ if($request->id!=''){
                 if (!\App\Content::where('name', '=', $filename)->where('user_id', $user->id)->exists()) {
                     $file->storeAs($user->id . '/content', $filename);
 
-                    if (strpos($file->getMimeType(), 'video') !== false)
-                        prepareVideo($user->id . '/content/' . $filename);
+                    // if (strpos($file->getMimeType(), 'video') !== false)
+                        // prepareVideo($user->id . '/content/' . $filename);
 
                     $array= new \App\Content([
                         'name' => $filename,
@@ -1155,6 +1155,64 @@ if($request->id!=''){
         } else {
             return response()->json([
                 'error'=>true,'message'=>'Unable to load images']);;
+        }
+    }
+    public function crearMiniatura(Request $request){
+        return response()->json([
+            'message'=> 'Successfully added']);
+    }
+
+    public function loginGoogle(Request $request){
+        $user_verif = User::where("email",$request->email)->count();
+        if($user_verif > 0){
+            $user = User::where("email",$request->email)->first();
+            $tokenResult = $user->createToken('Personal Access Token');
+            $token = $tokenResult->token;
+            $token->expires_at = Carbon::now()->addWeeks(1);
+
+            $token->save();
+            
+            return response()->json([
+                'access_token' => $tokenResult->accessToken,
+                'token_type' => 'Bearer',
+                'user' => $user,
+                'expires_at' => Carbon::parse(
+                    $tokenResult->token->expires_at
+                )->toDateTimeString()
+            ]);
+        }else{
+            $user = new User;
+            $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $token=substr(str_shuffle(str_repeat($pool, 5)), 0, 15);
+            $user->uuid = $token;
+            $user->first_name = $request->fName;
+            $user->last_name = $request->lName;
+            $user->email = $request->email;
+            $user->avatar = $request->avatar;
+            $user->password = bcrypt(substr(str_shuffle(str_repeat($pool, 5)), 0, 8));
+            
+            $user->save();
+
+            if($user){
+                $tokenResult = $user->createToken('Personal Access Token');
+                $token = $tokenResult->token;
+                $token->expires_at = Carbon::now()->addWeeks(1);
+
+                $token->save();
+            
+                return response()->json([
+                    'access_token' => $tokenResult->accessToken,
+                    'token_type' => 'Bearer',
+                    'user' => $user,
+                    'expires_at' => Carbon::parse(
+                        $tokenResult->token->expires_at
+                    )->toDateTimeString()
+                ]);
+            }else{
+                return response()->json([
+                    "msj"=>"Error Registrando usuario"
+                ],404);
+            }
         }
     }
 
