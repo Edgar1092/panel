@@ -34,7 +34,7 @@ class ApiController extends Controller
                 'version' => $request->version,
                 'serial' => $request->serial,
                 'lat' => isset($request->lat) ? $request->lat : 0,
-                'lng' => isset($request->lng) ? $request->lat : 0
+                'lng' => isset($request->lng) ? $request->lng : 0
             ]);
     
             $user->screens()->save($screen);
@@ -43,7 +43,14 @@ class ApiController extends Controller
             $user->screens()->save($screen);
         }
         
+        if (\App\Screen::where('uuid', '=', $request->uuid)->exists()) { 
+            $screen = \App\Screen::where('uuid', '=', $request->uuid)->first();
+            $screen->lat = isset($request->lat) ? $request->lat : 0;
+            $screen->lng = isset($request->lng) ? $request->lng : 0;
+            $screen->save();
+        }
         return response()->json([
+            'screen' => $screen,
             'message' => 'Successfully registered'
         ]);
     }
@@ -224,7 +231,7 @@ if (Storage::disk('public')->exists($user->id . '/content/' . $item->name . '.x2
 
         // $user = $request->user();
 
-        return "hola";
+        // return "hola";
   
 
         if(Screen::where('uuid',$request->uuid)->exists){
@@ -250,10 +257,10 @@ if (Storage::disk('public')->exists($user->id . '/content/' . $item->name . '.x2
                 )->toDateTimeString()
             ]);
         }else{
-            return'culo';
-            //    return response()->json([
-            //     'message' => 'Unauthorized'
-            // ], 401);
+            // return'culo';
+               return response()->json([
+                'message' => 'Unauthorized'
+            ], 401);
         }
 
     }

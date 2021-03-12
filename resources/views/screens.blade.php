@@ -382,8 +382,8 @@
         selectedScreen = {
             uuid: $screen.data('uuid'),
             name: $screen.data('name'),
-            lat: $screen.data('lng'),
-            lng: $screen.data('lat')
+            lat: $screen.data('lat'),
+            lng: $screen.data('lng')
         };
 
         markerView.setLngLat([
